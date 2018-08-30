@@ -1,14 +1,20 @@
 #!/usr/local/bin/python
+try:
+    import Queue as queue
+    from Tkinter import *
+except ImportError:
+    import queue
+    from tkinter import *
+
+import ttk
 
 import logging
 import platform as Platform
-import queue
+
 import sys
 import threading
 import time
 from random import randint
-from tkinter import RAISED, ttk, filedialog
-from tkinter import Tk, Label, Button, StringVar, Entry, OptionMenu
 
 import matplotlib
 import visa
@@ -1660,11 +1666,14 @@ $$$$$$$$/  $$$$$$$/ $$$$$$$/  $$/      $$/  $$$$$$$/ $$$$$$$/     $$$$/   $$$$$$
     print("\n")
     print("*" * 80)
     print("Devices connected:")
-    print(
-        rm.list_resources()
-        if len(rm.list_resources())
-        else "No devices located. Please check GPIB cable."
-    )
+    try:
+        print(
+            rm.list_resources()
+            if len(rm.list_resources())
+            else "No devices located. Please check GPIB cable."
+        )
+    except Exception:
+        print("no py visa, continuing without. Everything will break if you try to run anything.")
     print("*" * 80)
     print("\n")
 
