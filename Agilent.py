@@ -1,4 +1,4 @@
-import pyvisa
+import pyvisa, time
 
 
 class Agilent4156(object):
@@ -167,6 +167,8 @@ class AgilentE4980a(object):
         self.inst.write(":INIT;")
     
     def __fetch_data(self):
+        print("Pausing for 1 sec while machiene initializes.")
+        time.sleep(1)
         _data_out = self.inst.query(":FETC?")
         # print _data_out
         data_out = _data_out
