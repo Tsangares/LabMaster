@@ -182,3 +182,120 @@ class AgilentE4980a(object):
     def read_data(self):
         self.initiate()
         return self.__fetch_data()
+
+
+
+# Agilent 4155C is a parameter analizer that has 4 voltage outputs and 4 inputs.
+# I am not going to implement varaible voltage.
+# I am only going to implement a constnant (zero) voltage and measuring the current.
+class Agilent4155c(object):
+    def __init__(self):
+        self.loc=None # Current Page
+        self.mode=None
+        self.prefix=None
+
+    # query() and write() are helper functions
+    # The intention is just to shorten and abstract form the instrument object.
+    def query(self,command):
+        return self.inst.query(command)
+
+    def write(self,command):
+        return self.inst.write(command)
+
+    # Prefix is a helper variable and functions.
+    # The goal of prefix is to prefix every gpib command
+    #  with the input field that is of interest.
+    def setPrefix(self, prefix):
+        self.prefix=prefix
+        
+    def getPrefix(self):
+        return self.prefix
+    
+    def prefixWrite(self,command):
+        if self.prefix is not None:
+            self.write("%s:%s"(self.prefix.command))
+        else:
+            raise Exception("Tried to write without a prefix. Set prifex with setPrefix function.")
+                
+
+    # getName() returns the name of the selected device.
+    def getName(self):
+        return self.write("*IDN?")
+
+    def startRun(self):
+        return self.write(":PAGE:SCON:SING")
+    
+    # selectPage is a helper function
+    # Lets you change the screen on the device
+    # It also keeps track of the page it is on in the self.loc variable.
+    def selectPage(self, page):
+        self.loc=page
+        return self.write(":PAGE:%s"%page)
+
+    # Goto measureing page
+    def selectMeasure(self):
+        return self.selectPage("MEAS")
+
+    # Goto the channels page
+    def selectChannels(self):
+        return self.selectPage("CHAN")
+
+    # Set Sweep vs Sampling mode and keep track of it.
+    def setMode(self, mode):
+        self.mode=mode
+        return self.write(":PAGE:CHAN:MODE %s"%mode)
+    def setSampleMode(self):
+        return self.setMode("SAMPling")
+    def setSweepMode(self):
+        return self.setMode("SWEep")
+
+
+    def setHoldTime(self, time):
+        self.write(":PAGE:MEAS:%s:HTIMe %s"%(self.mode,time))
+        print("Set hold time to %s."%time)
+
+    def testSampleMode(self):
+        if "SAMP" is not in self.mode.upper():
+            print("ERROR: Tried to set sampling setting but not in sampling mode. Use setSampleMode()")
+            return False
+        return True
+    
+    # For sampling mode
+    def setSampleSize(self, size):
+        testSampleMode() #Warn user if the mode is not set correctly
+        return self.write(":PAGE:MEAS:SAMP:POIN %s"%size)
+
+    # This is the duration of each measurement.
+    def setSampleDuration(self, duration):
+        testSampleMode() #Warm user if the mode is not set correctly
+        return self.write(":PAGE:MEAS:SAMP:PER %s"%duration)
+        
+    # Set a channel to a constant voltage
+    # We want it at zero to measure current
+    def setVoltage(self, channel, voltage, compliance):
+        if int(channel)<0 or int(channel)>5:
+            raise Exception("Channel is outside bounds. [1-4]; Given %s"%channel)
+
+        #Configuring the channel
+        self.setPrefix(":PAGE:CHAN:SMU%s"%channel) #Select SMU channel
+        self.prefixWrite("MODE V") #Set to source voltage
+        self.prefixWrite("FUNC CONST") #Set to constant
+        self.prefixWrite("STAN OFF") #Disable standby
+        self.prefixWrite()
+
+        #Configuring the measurement
+        self.setPrefix(":PAGE:MEAS:%s:CONS:SMU%s"%(self.mode,channel))
+        self.prefixWrite("SOURce %s"%voltage)
+        self.prefixWrite("COMPliance %s"%compliance)
+        print("Set voltage to %s and compliance to %s."%(voltage,compliance))
+        
+    # Sets output data to ascii instead of binary
+    def setOutputReadable(self):
+        self.write(":FORM:BORD NORM; DATA ASC;") 
+
+    def getCurrent(self, channels, samples=None, duration=None):
+        if samples is not None: setSampleSize(samples)
+        if duration is not None: setSampleDuration(duration)
+        setOutputReadable()
+        
+        
