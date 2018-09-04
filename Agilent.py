@@ -255,7 +255,7 @@ class Agilent4155c(object):
         print("Set hold time to %s."%time)
 
     def testSampleMode(self):
-        if "SAMP" is not in self.mode.upper():
+        if "SAMP" not in self.mode.upper():
             print("ERROR: Tried to set sampling setting but not in sampling mode. Use setSampleMode()")
             return False
         return True
