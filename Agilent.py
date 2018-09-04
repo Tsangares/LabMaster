@@ -1,11 +1,11 @@
-import pyvisa, time
+import pyvisa, time, visa
 
 
 class Agilent4156(object):
-    
+
     def __init__(self, gpib=2):
         """Set up gpib controller for device"""
-        
+
         assert(gpib >= 0), "Please enter a valid GPIB address"
         self.gpib_addr = gpib
 
@@ -16,20 +16,20 @@ class Agilent4156(object):
             if str(self.gpib_addr) in x:
                 print("Found agilent lcrmeter")
                 self.inst = rm.open_resource(x)
-                
+
         self.inst = rm.open_resource(rm.list_resources()[0])
         print(self.inst.query("*IDN?"))
-        
+
         self.inst.write("*RST")
         self.inst.write("*ESE 60;*SRE 48;*CLS;")
         self.inst.timeout = 10000
-        
+
     def configure_measurement(self, _mode=1):
         mode = {0:":PAGE:CHAN:MODE SWE;", 1:":PAGE:CHAN:MODE SAMP", 2:":PAGE:CHAN:MODE QSCV"}.get(
              _mode, ":PAGE:CHAN:MODE SAMP")
-         
+
         self.inst.write(mode)
-        
+
     def configure_sampling_measurement(self, _mode=0, _filter=False, auto_time=True,
                                        hold_time=0, interval=4e-3, total_time=0.4, no_samples=10):
         mode = {0:"LIN", 1:"L10", 2:"L25", 3:"L50", 4:"THIN"}.get(_mode, "LIN")
@@ -40,38 +40,38 @@ class Agilent4156(object):
             self.inst.write(":PAGE:MEAS:SAMP:FILT ON;")
         else:
             self.inst.write(":PAGE:MEAS:SAMP:FILT OFF;")
-            
+
         self.inst.write(":PAGE:MEAS:SAMP:PER " + str(total_time) + ";")
         if auto_time is True:
             self.inst.write(":PAGE:MEAS:SAMP:PER:AUTO ON;")
         else:
             self.inst.write(":PAGE:MEAS:SAMP:PER:AUTO OFF;")
-            
+
         self.inst.write(":PAGE:MEAS:SAMP:POIN " + str(no_samples) + ";")
-        
+
     def configure_sampling_stop(self, stop_condition=False, no_events=1,
                                  _event_type=0, delay=0, thresh=0, var="V2"):
-        
+
         event_type = {0:"LOW", 1:"HIGH", 2:"ABSL", 3:"ABSH"}.get(_event_type, "LOW")
         if stop_condition is True:
             self.inst.write(":PAGE:MEAS:SAMP:SCON ON;")
         else:
             self.inst.write(":PAGE:MEAS:SAMP:SCON OFF;")
-            
+
         self.inst.write(":PAGE:MEAS:SAMP:SCON:ECO " + str(no_events) + ";")
         self.inst.write(":PAGE:MEAS:SAMP:SCON:EDEL " + str(delay) + ";")
         self.inst.write(":PAGE:MEAS:SAMP:SCON:EVEN " + event_type + ";")
         self.inst.write(":PAGE:MEAS:SAMP:SCON:NAME \'" + var + "\';")
         self.inst.write(":PAGE:MEAS:SAMP:SCON:THR " + str(thresh) + ";")
-        
+
     def measurement_actions(self, _action=2):
-        
+
         action = {0:"APP", 1:"REP", 2:"SING", 3:"STOP"}.get(_action, "SING")
         self.inst.write(":PAGE:SCON:" + action + ";")
-        
+
     def wait_for_acquisition(self):
         return self.inst.query("*OPC?")
-        
+
     def read_trace_data(self, var="I1"):
         _data = self.inst.query(":FORM:BORD NORM;DATA ASC;:DATA? \'" + var + "\';")
         # print _data
@@ -91,8 +91,8 @@ class Agilent4156(object):
             self.inst.write(":PAGE:CHAN:" + vmu + ":DCH OFF;")
         self.inst.write(":PAGE:CHAN:" + vmu + ":VNAM \'" + name + "\';")
         print("vmuset good")
-        
-        
+
+
     def configure_channel(self, _chan=0, standby=False):
         _func = 3
         _mode = 4
@@ -119,10 +119,10 @@ class Agilent4156(object):
         self.inst.write(":PAGE:MEAS:MSET:ITIME:SHOR " + str(short_time) + ";")
 
 class AgilentE4980a(object):
-    
+
     def __init__(self, gpib=19):
         """Set up gpib controller for device"""
-        
+
         assert(gpib >= 0), "Please enter a valid gpib address"
         self.gpib_addr = gpib
 
@@ -135,37 +135,37 @@ class AgilentE4980a(object):
                 self.inst = rm.open_resource(x)
 
         print(self.inst.query("*IDN?;"))
-        
+
         self.inst.write("*RST;")
         self.inst.write("*ESE 60;*SRE 48;*CLS;")
         self.inst.timeout = 10000
 
     def configure_measurement(self, _function="CPD", _impedance=3, autorange=True):
-        
+
         function = {0:"CPD", 1:"CPQ", 2:"CPG", 3:"CPRP", 4:"CSD", 5:"CSQ", 6:"CSRS", 7:"LPD",
                  8:"LPQ", 9:"LPG", 10:"LPRP", 11:"LPRD", 12:"LSD", 13:"LSQ", 14:"LSRS", 15:"LSRD",
                  16:"RX", 17:"ZTD", 18:"ZTR", 19:"GB", 20:"YTD", 21:"YTR", 22:"VDID"
                  }.get(_function, "CPRP")
-        
+
         impedance = {0:"1E-1;", 1:"1E+0;", 2:"1E+1;", 3:"1E+2;", 4:"3E+2;", 5:"1E+3;", 6:"3E+3;", 7:"1E+4",
                      8:"3E+4", 9:"1E+5"}.get(_impedance, "1E+2")
-        
-        if autorange is True:             
+
+        if autorange is True:
             self.inst.write(":FUNC:IMP " + _function + ";:FUNC:IMP:RANG:AUTO ON")
         else:
             self.inst.write(":FUNC:IMP " + _function + ";:FUNC:IMP:RANG: " + impedance)
-        
+
     def configure_measurement_signal(self, frequency=10000, _signal_type=0, signal_level=5.0):
         signal_type = {0:"VOLT", 1:"CURR"}.get(_signal_type, "VOLT")
         self.inst.write(":FREQ " + str(float(frequency)) + ";:" + signal_type + " " + str(float(signal_level)))
-        
+
     def configure_aperture(self, _meas_time, avg_factor=1):
         meas_time = {0:"SHOR", 1:"MED", 2:"LONG"}.get(_meas_time, "MED")
         self.inst.write(":APER " + meas_time + "," + str(float(avg_factor)) + ";")
-    
+
     def initiate(self):
         self.inst.write(":INIT;")
-    
+
     def __fetch_data(self):
         print("Pausing for 1 sec while machiene initializes.")
         time.sleep(1)
@@ -174,11 +174,11 @@ class AgilentE4980a(object):
         data_out = _data_out
         parameter1 = data_out.split(",")[0]
         parameter2 = data_out.split(",")[1]
-        
+
         results = (float(parameter1), float(parameter2))
         # print results
         return results
-    
+
     def read_data(self):
         self.initiate()
         return self.__fetch_data()
@@ -188,11 +188,47 @@ class AgilentE4980a(object):
 # Agilent 4155C is a parameter analizer that has 4 voltage outputs and 4 inputs.
 # I am not going to implement varaible voltage.
 # I am only going to implement a constnant (zero) voltage and measuring the current.
-class Agilent4155c(object):
+
+class Instrument:
+    def __init__(self):
+        self.inst=None
+
+    def getName(self,inst=None):
+        if inst is None:
+            if self.inst is not None:
+                inst=self.inst
+            else:
+                raise(Exception("Called getName without an Instrument selected."))
+        return str(inst.query('*IDN?')).lower()
+
+
+    def test(self):
+        return "working"
+
+    def connect(self,name):
+        rm=visa.ResourceManager()
+        for device in rm.list_resources():
+            inst=rm.open_resource(device)
+            if name in self.getName(inst):
+                print("Connected to the device named %s"%name)
+                self.inst=inst
+                break
+        if self.inst is None:
+            raise Exception("The device %s was not found."%name)
+
+    def reset(self):
+        self.inst.write("*RST;")
+
+
+class Agilent4155C(Instrument):
     def __init__(self):
         self.loc=None # Current Page
-        self.mode=None
-        self.prefix=None
+        self.mode=None # Sampling or Sweeping
+        self.prefix=None # More speci`fic than a page, current selected field
+        self.connect()
+
+    def connect(self):
+        return Instrument.connect(self,"4155c")
 
     # query() and write() are helper functions
     # The intention is just to shorten and abstract form the instrument object.
@@ -202,29 +238,31 @@ class Agilent4155c(object):
     def write(self,command):
         return self.inst.write(command)
 
+    def reset(self):
+        self.write("*RST;")
     # Prefix is a helper variable and functions.
     # The goal of prefix is to prefix every gpib command
     #  with the input field that is of interest.
     def setPrefix(self, prefix):
         self.prefix=prefix
-        
+
     def getPrefix(self):
         return self.prefix
-    
+
     def prefixWrite(self,command):
         if self.prefix is not None:
             self.write("%s:%s"(self.prefix.command))
         else:
-            raise Exception("Tried to write without a prefix. Set prifex with setPrefix function.")
-                
+            raise Exception("Tried to write without a prefix. Set prefix with setPrefix function.")
+
 
     # getName() returns the name of the selected device.
-    def getName(self):
-        return self.write("*IDN?")
+    #def getName(self):
+    #    return self.write("*IDN?")
 
     def startRun(self):
         return self.write(":PAGE:SCON:SING")
-    
+
     # selectPage is a helper function
     # Lets you change the screen on the device
     # It also keeps track of the page it is on in the self.loc variable.
@@ -259,7 +297,7 @@ class Agilent4155c(object):
             print("ERROR: Tried to set sampling setting but not in sampling mode. Use setSampleMode()")
             return False
         return True
-    
+
     # For sampling mode
     def setSampleSize(self, size):
         testSampleMode() #Warn user if the mode is not set correctly
@@ -269,7 +307,7 @@ class Agilent4155c(object):
     def setSampleDuration(self, duration):
         testSampleMode() #Warm user if the mode is not set correctly
         return self.write(":PAGE:MEAS:SAMP:PER %s"%duration)
-        
+
     # Set a channel to a constant voltage
     # We want it at zero to measure current
     def setVoltage(self, channel, voltage, compliance):
@@ -288,14 +326,15 @@ class Agilent4155c(object):
         self.prefixWrite("SOURce %s"%voltage)
         self.prefixWrite("COMPliance %s"%compliance)
         print("Set voltage to %s and compliance to %s."%(voltage,compliance))
-        
+
     # Sets output data to ascii instead of binary
     def setOutputReadable(self):
-        self.write(":FORM:BORD NORM; DATA ASC;") 
+        self.write(":FORM:BORD NORM; DATA ASC;")
 
     def getCurrent(self, channels, samples=None, duration=None):
         if samples is not None: setSampleSize(samples)
         if duration is not None: setSampleDuration(duration)
         setOutputReadable()
-        
-        
+
+a=Agilent4155C()
+a.connect()
