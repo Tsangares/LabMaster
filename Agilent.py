@@ -225,7 +225,6 @@ class Agilent4155C(Instrument):
         self.loc=None # Current Page
         self.mode=None # Sampling or Sweeping
         self.prefix=None # More speci`fic than a page, current selected field
-        self.connect()
 
     def connect(self):
         return Instrument.connect(self,"4155c")
@@ -251,7 +250,7 @@ class Agilent4155C(Instrument):
 
     def prefixWrite(self,command):
         if self.prefix is not None:
-            self.write("%s:%s"(self.prefix.command))
+            self.write("%s:%s"%(self.prefix,command))
         else:
             raise Exception("Tried to write without a prefix. Set prefix with setPrefix function.")
 
@@ -272,7 +271,7 @@ class Agilent4155C(Instrument):
 
     # Goto measureing page
     def selectMeasure(self):
-        return self.selectPage("MEAS")
+        return self.selectPage("MEAS:"%self.mode)
 
     # Goto the channels page
     def selectChannels(self):
@@ -317,14 +316,16 @@ class Agilent4155C(Instrument):
         #Configuring the channel
         self.setPrefix(":PAGE:CHAN:SMU%s"%channel) #Select SMU channel
         self.prefixWrite("MODE V") #Set to source voltage
-        self.prefixWrite("FUNC CONST") #Set to constant
+        self.prefixWrite("FUNC CONS") #Set to constant
         self.prefixWrite("STAN OFF") #Disable standby
-        self.prefixWrite()
 
         #Configuring the measurement
         self.setPrefix(":PAGE:MEAS:%s:CONS:SMU%s"%(self.mode,channel))
-        self.prefixWrite("SOURce %s"%voltage)
-        self.prefixWrite("COMPliance %s"%compliance)
+        self.prefixWrite("SOURce %s"%voltage) #in 100mA
+        if compliance > .1:
+            print("Compliance too high, must be below .1 A")
+        else:
+            self.prefixWrite("COMPliance %s"%compliance)
         print("Set voltage to %s and compliance to %s."%(voltage,compliance))
 
     # Sets output data to ascii instead of binary
