@@ -299,12 +299,12 @@ class Agilent4155C(Instrument):
 
     # For sampling mode
     def setSampleSize(self, size):
-        testSampleMode() #Warn user if the mode is not set correctly
+        self.testSampleMode() #Warn user if the mode is not set correctly
         return self.write(":PAGE:MEAS:SAMP:POIN %s"%size)
 
     # This is the duration of each measurement.
     def setSampleDuration(self, duration):
-        testSampleMode() #Warm user if the mode is not set correctly
+        self.testSampleMode() #Warm user if the mode is not set correctly
         return self.write(":PAGE:MEAS:SAMP:PER %s"%duration)
 
     # Set a channel to a constant voltage
@@ -333,9 +333,17 @@ class Agilent4155C(Instrument):
         self.write(":FORM:BORD NORM; DATA ASC;")
 
     def getCurrent(self, channels, samples=None, duration=None):
-        if samples is not None: setSampleSize(samples)
-        if duration is not None: setSampleDuration(duration)
-        setOutputReadable()
+        if samples is not None: self.setSampleSize(samples)
+        if duration is not None: self.setSampleDuration(duration)
+        self.setOutputReadable()
+        
 
 a=Agilent4155C()
 a.connect()
+a.reset()
+a.setSamplingMode()
+for i in range (1,5):
+    a.setVoltage(i,0,.01)
+
+a.getCurrent(1,1,1)
+
