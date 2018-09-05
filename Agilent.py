@@ -221,10 +221,14 @@ class Instrument:
 
 
 class Agilent4155C(Instrument):
-    def __init__(self):
+    def __init__(self, reset=False,connect=True):
         self.loc=None # Current Page
         self.mode=None # Sampling or Sweeping
         self.prefix=None # More speci`fic than a page, current selected field
+        self.inputs=[]
+        self.outputs=[]
+        if connect is True: self.connect()
+        if reset is True: self.reset()
 
     def connect(self):
         return Instrument.connect(self,"4155c")
@@ -239,6 +243,7 @@ class Agilent4155C(Instrument):
 
     def reset(self):
         self.write("*RST;")
+        print("Reset config.")
 
     # Prefix is a helper variable and functions.
     # The goal of prefix is to prefix every gpib command
@@ -259,7 +264,7 @@ class Agilent4155C(Instrument):
     #def getName(self):
     #    return self.write("*IDN?")
 
-    def startRun(self):
+    def run(self):
         return self.write(":PAGE:SCON:SING")
 
     # selectPage is a helper function
@@ -292,10 +297,10 @@ class Agilent4155C(Instrument):
         print("Set hold time to %s."%time)
 
     def testSampleMode(self):
-        if "SAMP" not in self.mode.upper():
-            print("ERROR: Tried to set sampling setting but not in sampling mode. Use setSampleMode()")
-            return False
-        return True
+        if self.mode is None or "SAMP" not in self.mode.upper():
+            print("Attempt to set sampling setting while not in sampling mode.")
+            print("Switching to sampling mode...")
+            self.setSamplingMode()
 
     # For sampling mode
     def setSampleSize(self, size):
@@ -326,23 +331,39 @@ class Agilent4155C(Instrument):
             print("Compliance too high, must be below .1 A")
         else:
             self.prefixWrite("COMPliance %s"%compliance)
-        print("Set voltage to %s and compliance to %s."%(voltage,compliance))
+        print("Set voltage to %sV and compliance to %sA."%(voltage,compliance))
+
+        #Add to variable lists
+        inputName="V%s"%channel
+        outputName="I%s"%channel
+        if inputName not in self.inputs:
+            self.inputs.append(inputName)
+        if outputName not in self.outputs:
+            self.outputs.append(outputName)
 
     # Sets output data to ascii instead of binary
     def setOutputReadable(self):
         self.write(":FORM:BORD NORM; DATA ASC;")
 
+    def getResults(self):
+        results={}
+        for output in self.outputs:
+            results[output]=self.query(":DATA? '%s'"%output)
+        return results
+
+    def prepareMeasurement(self):
+        self.setPrefix(":PAGE:DISP")
+        params=""
+        for output in self.outputs:
+            params+=", '%s'"%output
+        self.prefixWrite("LIST '@TIME'%s"%params)
+
     def getCurrent(self, channels, samples=None, duration=None):
         if samples is not None: self.setSampleSize(samples)
         if duration is not None: self.setSampleDuration(duration)
         self.setOutputReadable()
-
-
-a=Agilent4155C()
-a.connect()
-a.reset()
-a.setSamplingMode()
-for i in range (1,5):
-    a.setVoltage(i,0,.01)
-
-a.getCurrent(1,1,1)
+        self.prepareMeasurement()
+        self.run()
+        while self.query("*OPC?") == "0": continue
+        results=self.getResults()
+        print(results)
