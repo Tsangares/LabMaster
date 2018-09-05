@@ -18,7 +18,7 @@ from matplotlib import pyplot as plt
 
 from LabMaster_utilities import *
 from LabMaster import *
-
+from LabMaster_duo import *
 
 # These are helper functions that are common GUI objects.
 
@@ -54,20 +54,19 @@ class Settings:
         self.compliance_scale = StringVar()
         self.source_choice = StringVar()
         self.figure=ttk.Frame(notebook)
-        self.buildLabels()
 
-    def buildLabels(self):
-        makeUnitEntry(self.figure,"Start Volt", self.start_volt, 1, "V")
-        makeUnitEntry(self.figure,"End Volt",   self.end_volt,   2, "V")
-        makeUnitEntry(self.figure,"Step Volt",  self.step_volt,  3, "V")
-        makeUnitEntry(self.figure,"Hold Time",  self.hold_time,  4, "s")
-        makeUnitsEntry(self.figure,"Compliance", self.compliance, 5, {'mA', 'uA', 'nA'}, self.compliance_scale)
+    def buildLabels(self, start=True, end=True, step=True, hold=True, compliance=True):
+        if start: makeUnitEntry(self.figure,"Start Volt", self.start_volt, 1, "V")
+        if end:   makeUnitEntry(self.figure,"End Volt",   self.end_volt,   2, "V")
+        if step:  makeUnitEntry(self.figure,"Step Volt",  self.step_volt,  3, "V")
+        if hold:  makeUnitEntry(self.figure,"Hold Time",  self.hold_time,  4, "s")
+        if compliance: makeUnitsEntry(self.figure,"Compliance", self.compliance, 5, {'mA', 'uA', 'nA'}, self.compliance_scale)
 
 # This is the mess of a GUI        
 class GuiPart:
     
     def __init__(self, master, inputdata, outputdata, stopq):
-        print "in guipart"
+        print("in guipart")
         
         self.master = master
         self.inputdata = inputdata
@@ -146,7 +145,7 @@ class GuiPart:
         
         n = ttk.Notebook(root,width=800)
         n.grid(row=0, column=0, columnspan=100, rowspan=100, sticky='NESW')
-
+        
         self.f2 = ttk.Frame(n)
         self.f3 = ttk.Frame(n)
         self.f4 = ttk.Frame(n)
@@ -154,13 +153,34 @@ class GuiPart:
 
         self.iv=Settings(n)
         self.f1=self.iv.figure
+        self.iv.buildLabels()
+        
+        self.william = Settings(n)
+        self.william.steps=StringVar(root, "1")
+        self.william.delay=StringVar(root, "0")
+        self.william.compliance=StringVar(root, "0")
+        self.f6=self.william.figure
+        self.william.buildLabels(compliance=False,hold=False,step=False)
+        makeUnitEntry(self.william.figure, "Number of Steps",self.william.steps,3,"Number of Steps")
+        makeUnitEntry(self.william.figure, "Measurement Delay",self.william.delay,4,"secconds")
+        
+        makeUnitEntry(self.william.figure, "Compliance",self.william.compliance,5, "Amps")
+        Button(self.william.figure, text="Start", command=self.prepDuo).grid(row=8,column=2)
+        Button(self.william.figure, text="Stop", command=stopDuo).grid(row=10,column=2)
+        
+        
+
+        
+        n.add(self.william.figure, text="Duo IV")
         n.add(self.iv.figure, text='Basic IV')        
         n.add(self.f2, text='CV')
         n.add(self.f3, text='Param Analyzer IV ')
         n.add(self.f4, text='Multiple IV')
         n.add(self.f5, text='Current Monitor')
+        
+        
 
-
+        
         if "Windows" in platform.platform():
             self.filename.set("LabMasterData\iv_data")
             s = Label(self.f1, text="File name:")
@@ -674,6 +694,11 @@ class GuiPart:
         print "placing order"
         self.stop.put("random")
         self.stop.put("another random value")
+        
+    def prepDuo(self):
+        obj=self.william
+        return runDuo(obj.delay,obj.start_volt,obj.end_volt,obj.steps,obj.compliance)
+
     
     def prepare_values(self):
         print "preparing iv values"
