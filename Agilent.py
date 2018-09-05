@@ -239,6 +239,7 @@ class Agilent4155C(Instrument):
 
     def reset(self):
         self.write("*RST;")
+
     # Prefix is a helper variable and functions.
     # The goal of prefix is to prefix every gpib command
     #  with the input field that is of interest.
@@ -253,7 +254,6 @@ class Agilent4155C(Instrument):
             self.write("%s:%s"%(self.prefix,command))
         else:
             raise Exception("Tried to write without a prefix. Set prefix with setPrefix function.")
-
 
     # getName() returns the name of the selected device.
     #def getName(self):
@@ -281,7 +281,7 @@ class Agilent4155C(Instrument):
     def setMode(self, mode):
         self.mode=mode
         return self.write(":PAGE:CHAN:MODE %s"%mode)
-    def setSampleMode(self):
+    def setSamplingMode(self):
         return self.setMode("SAMPling")
     def setSweepMode(self):
         return self.setMode("SWEep")
@@ -336,7 +336,7 @@ class Agilent4155C(Instrument):
         if samples is not None: self.setSampleSize(samples)
         if duration is not None: self.setSampleDuration(duration)
         self.setOutputReadable()
-        
+
 
 a=Agilent4155C()
 a.connect()
@@ -346,4 +346,3 @@ for i in range (1,5):
     a.setVoltage(i,0,.01)
 
 a.getCurrent(1,1,1)
-
