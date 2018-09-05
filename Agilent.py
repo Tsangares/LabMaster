@@ -225,6 +225,8 @@ class Agilent4155C(Instrument):
         self.loc=None # Current Page
         self.mode=None # Sampling or Sweeping
         self.prefix=None # More speci`fic than a page, current selected field
+        self.inputs=[]
+        self.outputs=[]
 
     def connect(self):
         return Instrument.connect(self,"4155c")
@@ -328,14 +330,41 @@ class Agilent4155C(Instrument):
             self.prefixWrite("COMPliance %s"%compliance)
         print("Set voltage to %s and compliance to %s."%(voltage,compliance))
 
+        #Add to variable lists
+        inputName="V%s"%channel
+        outputName="I%s"%channel
+        if inputName not in self.inputs:
+            self.inputs.append(inputName)
+        if outputName not in self.outputs:
+            self.outputs.append(outputName)
+
     # Sets output data to ascii instead of binary
     def setOutputReadable(self):
         self.write(":FORM:BORD NORM; DATA ASC;")
+
+    def getResults(self):
+        results={}
+        for output in self.outputs:
+            results[output]=self.query(":DATA? '%s'"%output)
+        return results
+
+    def prepareMeasurement(self):
+        self.setPrefix(":PAGE:DISP")
+        params=""
+        for output in outputs:
+            params+=", 'output'"
+        print(params)
+        self.prefixWrite("LIST '@TIME'%s"%params)
 
     def getCurrent(self, channels, samples=None, duration=None):
         if samples is not None: self.setSampleSize(samples)
         if duration is not None: self.setSampleDuration(duration)
         self.setOutputReadable()
+        self.prepareMeasurement()
+        self.startRun()
+        while self.query("*OPC?") == "0": continue
+        results=self.getResults()
+        print(results)
         
 
 a=Agilent4155C()
@@ -345,5 +374,5 @@ a.setSamplingMode()
 for i in range (1,5):
     a.setVoltage(i,0,.01)
 
-a.getCurrent(1,1,1)
+    a.getCurrent(1,1,1         )
 
