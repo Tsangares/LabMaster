@@ -697,7 +697,7 @@ class GuiPart:
         
     def prepDuo(self):
         obj=self.william
-        return runDuo(obj.delay,obj.start_volt,obj.end_volt,obj.steps,obj.compliance)
+        return runDuo(float(obj.delay.get()),float(obj.start_volt.get()),float(obj.end_volt.get()),int(obj.steps.get()),float(obj.compliance.get()))
 
     
     def prepare_values(self):
