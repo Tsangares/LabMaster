@@ -26,6 +26,7 @@ from LabMaster_duo import *
 def makeEntry(fig,title,var,row):
     obj = Label(fig, text=title)
     obj.grid(row=row, column=1)
+    if var is None: var=StringVar(root, "0")
     obj = Entry(fig, textvariable=var)
     obj.grid(row=row, column=2)
 
@@ -155,23 +156,34 @@ class GuiPart:
         self.f1=self.iv.figure
         self.iv.buildLabels()
         
-        self.william = Settings(n)
-        self.william.steps=StringVar(root, "1")
-        self.william.delay=StringVar(root, "0")
-        self.william.compliance=StringVar(root, "0")
-        self.f6=self.william.figure
-        self.william.buildLabels(compliance=False,hold=False,step=False)
-        makeUnitEntry(self.william.figure, "Number of Steps",self.william.steps,3,"Number of Steps")
-        makeUnitEntry(self.william.figure, "Measurement Delay",self.william.delay,4,"secconds")
+        self.duo = Settings(n)
+        self.duo.steps=StringVar(root, "1")
+        self.duo.delay=StringVar(root, "0")
+        self.duo.compliance=StringVar(root, "0")
+        self.duo.keithly_compliance=StringVar(root, "0")
+        self.duo.agilent_compliance1=StringVar(root, "0")
+        self.duo.agilent_compliance2=StringVar(root, "0")
+        self.duo.agilent_compliance3=StringVar(root, "0")
+        self.duo.agilent_compliance4=StringVar(root, "0")
+                                
+        self.f6=self.duo.figure
+        self.duo.buildLabels(compliance=False,hold=False,step=False)
+        makeUnitEntry(self.duo.figure, "Number of Steps",self.duo.steps,3,"Number of Steps")
+        makeUnitEntry(self.duo.figure, "Measurement Delay",self.duo.delay,4,"secconds")
         
-        makeUnitEntry(self.william.figure, "Compliance",self.william.compliance,5, "Amps")
-        Button(self.william.figure, text="Start", command=self.prepDuo).grid(row=8,column=2)
-        Button(self.william.figure, text="Stop", command=stopDuo).grid(row=10,column=2)
+        makeUnitEntry(self.duo.figure, "Keithly Compliance",self.duo.keithly_compliance,5, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 1",self.duo.agilent_compliance1,6, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 2",self.duo.agilent_compliance2,7, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 3",self.duo.agilent_compliance3,8, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 4",self.duo.agilent_compliance4,9, "mA")
+        Button(self.duo.figure, text="Save Configuation", command=self.saveDuo).grid(row=11,column=2)
+        Button(self.duo.figure, text="Start", command=self.prepDuo).grid(row=12,column=2)
+        Button(self.duo.figure, text="Stop", command=stopDuo).grid(row=14,column=2)
         
         
 
         
-        n.add(self.william.figure, text="Duo IV")
+        n.add(self.duo.figure, text="Duo IV")
         n.add(self.iv.figure, text='Basic IV')        
         n.add(self.f2, text='CV')
         n.add(self.f3, text='Param Analyzer IV ')
@@ -696,7 +708,7 @@ class GuiPart:
         self.stop.put("another random value")
         
     def prepDuo(self):
-        obj=self.william
+        obj=self.duo
         return runDuo(obj.delay,obj.start_volt,obj.end_volt,obj.steps,obj.compliance)
 
     
