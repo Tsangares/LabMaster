@@ -347,8 +347,10 @@ class Agilent4155C(Instrument):
 
     def getResults(self):
         results={}
+        if len(self.outputs) == 1:
+            return float(self.query(":DATA? '%s'"%self.outputs[0]))
         for output in self.outputs:
-            results[output]=self.query(":DATA? '%s'"%output)
+            results[output]=float(self.query(":DATA? '%s'"%output))
         return results
 
     def prepareMeasurement(self):
@@ -358,12 +360,11 @@ class Agilent4155C(Instrument):
             params+=", '%s'"%output
         self.prefixWrite("LIST '@TIME'%s"%params)
 
-    def getCurrent(self, channels, samples=None, duration=None):
+    def getCurrent(self, samples=None, duration=None):
         if samples is not None: self.setSampleSize(samples)
         if duration is not None: self.setSampleDuration(duration)
         self.setOutputReadable()
         self.prepareMeasurement()
         self.run()
         while self.query("*OPC?") == "0": continue
-        results=self.getResults()
-        print(results)
+        return self.getResults()
