@@ -5,21 +5,32 @@ from time import sleep
 import matplotlib.pyplot as plt
 _currentV=None
 stop=False
+
+def averageCurrent(result):
+    output={}
+    for key in result:
+        currents=result[1:]
+        output[key]=sum(currents)/len(currents)
+    return output
+
 #make sperearte cpmliance field for each input including the keithly
-def runDuo(delay,startV,endV,steps,compliance):
+def runDuo(delay,measureTime,samples,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4):
+    keithley_comp/=1000 #input as amps, but we need it in units of miliamps because that is what we prompted the user for.
     currents=[]
     stop=False
-    agilent_samples=1
-    agilent_duration=.1
+    agilent_samples=samples+1
+    agilent_duration=measureTime
     #Sets all of the inputs, and get a current reading.
     agilent=Agilent4155C(reset=True)
-    for i in range (1,5):
-        agilent.setVoltage(i,0,compliance*1000) #PLZ CHECK THIS!!!
+    agilent.setVoltage(1,0,comp1)
+    agilent.setVoltage(2,0,comp2)
+    agilent.setVoltage(3,0,comp3)
+    agilent.setVoltage(4,0,comp4)
     print("Test current measurement: %s"%agilent.getCurrent(agilent_samples,agilent_duration))
         #Now setup the keithly
     keithley = Keithley2657a()
     voltage=0
-    keithley.configure_measurement(1, 0, compliance)
+    keithley.configure_measurement(1, 0, keithley_comp)
     voltages=linspace(startV,endV,steps)
     for volt in voltages:
         _currentV=volt
@@ -27,8 +38,8 @@ def runDuo(delay,startV,endV,steps,compliance):
         if stop: return
         keithley.set_output(volt)
         time.sleep(delay)
-        currents.append(agilent.getCurrent(agilent_samples,agilent_duration))
-        time.sleep(delay)
+        
+        currents.append(averageCurrent(agilent.getCurrent(agilent_samples,agilent_duration)))
     powerDownPSU(voltages[-1],keithley)
     print("Done.")
     print("Voltages %s"%voltages)

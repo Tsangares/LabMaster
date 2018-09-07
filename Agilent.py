@@ -292,6 +292,17 @@ class Agilent4155C(Instrument):
         return self.setMode("SWEep")
 
 
+    # Setting integration
+    def setIntTime(self, mode):
+        self.integration=mode
+        return self.write(":PAGE:MEAS:MSET:ITIM:MODE %s"%mode)
+    def setLong(self):
+        return self.setIntTime("LONG")
+    def setMedium(self):
+        return self.setIntTime("MED")
+    def setShort(self):
+        return self.setIntTime("SHOR")
+    
     def setHoldTime(self, time):
         self.write(":PAGE:MEAS:%s:HTIMe %s"%(self.mode,time))
         print("Set hold time to %s."%time)
@@ -368,3 +379,5 @@ class Agilent4155C(Instrument):
         self.run()
         while self.query("*OPC?") == "0": continue
         return self.getResults()
+
+

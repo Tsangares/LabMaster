@@ -159,29 +159,31 @@ class GuiPart:
         self.duo = Settings(n)
         self.duo.steps=StringVar(root, "1")
         self.duo.delay=StringVar(root, "0")
-        self.duo.compliance=StringVar(root, "0")
-        self.duo.keithly_compliance=StringVar(root, "0")
+        self.duo.measureTime=StringVar(root, "0")
+        self.duo.samples=StringVar(root, "10")
+        self.duo.integration=StringVar(root, "None")
+        self.duo.keithley_compliance=StringVar(root, "0")
         self.duo.agilent_compliance1=StringVar(root, "0")
         self.duo.agilent_compliance2=StringVar(root, "0")
         self.duo.agilent_compliance3=StringVar(root, "0")
         self.duo.agilent_compliance4=StringVar(root, "0")
+
                                 
         self.f6=self.duo.figure
         self.duo.buildLabels(compliance=False,hold=False,step=False)
-        makeUnitEntry(self.duo.figure, "Number of Steps",self.duo.steps,3,"Number of Steps")
+        makeUnitEntry(self.duo.figure, "Number of Steps",self.duo.steps,3,"# of Steps")
         makeUnitEntry(self.duo.figure, "Measurement Delay",self.duo.delay,4,"secconds")
-        
-        makeUnitEntry(self.duo.figure, "Keithly Compliance",self.duo.keithly_compliance,5, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 1",self.duo.agilent_compliance1,6, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 2",self.duo.agilent_compliance2,7, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 3",self.duo.agilent_compliance3,8, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 4",self.duo.agilent_compliance4,9, "mA")
-        Button(self.duo.figure, text="Save Configuation", command=self.saveDuo).grid(row=11,column=2)
+        makeUnitEntry(self.duo.figure, "Agilent Measuring Time",self.duo.measureTime,5,"secconds")
+        makeUnitEntry(self.duo.figure, "Agilent Samples",self.duo.samples,6,"# of samples")
+        makeUnitEntry(self.duo.figure, "Keithley Compliance",self.duo.keithley_compliance,7, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 1",self.duo.agilent_compliance1,8, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 2",self.duo.agilent_compliance2,9, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 3",self.duo.agilent_compliance3,10, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 4",self.duo.agilent_compliance4,11, "mA")
+        Button(self.duo.figure, text="Save Configuation", command=self.saveSettings).grid(row=11,column=2)
         Button(self.duo.figure, text="Start", command=self.prepDuo).grid(row=12,column=2)
         Button(self.duo.figure, text="Stop", command=stopDuo).grid(row=14,column=2)
         
-        
-
         
         n.add(self.duo.figure, text="Duo IV")
         n.add(self.iv.figure, text='Basic IV')        
@@ -709,7 +711,19 @@ class GuiPart:
         
     def prepDuo(self):
         obj=self.duo
-        return runDuo(float(obj.delay.get()),float(obj.start_volt.get()),float(obj.end_volt.get()),int(obj.steps.get()),float(obj.compliance.get()))
+        return runDuo(delay=float(obj.delay.get()),
+                      measureTime=float(obj.measureTime.get()),
+                      samples=float(obj.samples.get()),
+                      startV=float(obj.start_volt.get()),
+                      endV=float(obj.end_volt.get()),
+                      steps=int(obj.steps.get()),
+                      integration=obj.integration.get(),
+                      keithley_comp=float(obj.keithley_compliance.get()),
+                      comp1=float(obj.agilent_compliance1.get()),
+                      comp2=float(obj.agilent_compliance2.get()),
+                      comp3=float(obj.agilent_compliance3.get()),
+                      comp4=float(obj.agilent_compliance4.get())
+        )
 
     
     def prepare_values(self):
@@ -727,12 +741,25 @@ class GuiPart:
                          map(lambda x: x.strip(), self.cv_frequencies.get().split(",")), self.cv_function_choice.get(), self.cv_amplitude.get(), self.cv_impedance.get(), self.cv_integration.get(), self.cv_recipients.get()
                          , self.cv_filename.get()), 1)
         print input_params
-        saveSettings(self)
+        self.saveSettings()
         self.inputdata.put(input_params)  
         self.cv_f.clf()
         self.cv_a = self.cv_f.add_subplot(111)
         self.type = 1
-        
+
+    def saveSettings(self):
+        settings={
+            'duo': getDuoSettings(self),
+            'cv': getCVSettings(self),
+            'iv': None
+        }       
+        try:
+            with open(SAVE_FILE, 'w+') as f:
+                f.write(json.dumps(settings))
+                print('Settings saved in the file %s'%SAVE_FILE)
+        except Exception as e:
+            print(e)
+
     def multiv_prepare_values(self):
         
         print "preparing mult iv values"
