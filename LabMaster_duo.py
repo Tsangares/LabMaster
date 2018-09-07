@@ -9,7 +9,7 @@ stop=False
 def averageCurrent(result):
     output={}
     for key in result:
-        currents=result[1:]
+        currents=result[key][1:]
         output[key]=sum(currents)/len(currents)
     return output
 
@@ -44,8 +44,6 @@ def runDuo(delay,measureTime,samples,startV,endV,steps,integration,keithley_comp
     print("Done.")
     print("Voltages %s"%voltages)
     print("Currents %s"%currents)
-    plt.plot(voltages, currents)
-    plt.show()
     return voltages,currents
     
 def stopDuo():

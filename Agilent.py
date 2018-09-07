@@ -361,7 +361,7 @@ class Agilent4155C(Instrument):
         if len(self.outputs) == 1:
             return float(self.query(":DATA? '%s'"%self.outputs[0]))
         for output in self.outputs:
-            results[output]=float(self.query(":DATA? '%s'"%output))
+            results[output]=[float(val) for val in self.query(":DATA? '%s'"%output).split(',')]
         return results
 
     def prepareMeasurement(self):

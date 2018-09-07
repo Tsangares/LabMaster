@@ -180,8 +180,8 @@ class GuiPart:
         makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 2",self.duo.agilent_compliance2,9, "mA")
         makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 3",self.duo.agilent_compliance3,10, "mA")
         makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 4",self.duo.agilent_compliance4,11, "mA")
-        Button(self.duo.figure, text="Save Configuation", command=self.saveSettings).grid(row=11,column=2)
-        Button(self.duo.figure, text="Start", command=self.prepDuo).grid(row=12,column=2)
+        Button(self.duo.figure, text="Save Configuation", command=self.saveSettings).grid(row=15,column=2)
+        Button(self.duo.figure, text="Start", command=self.prepDuo).grid(row=13,column=2)
         Button(self.duo.figure, text="Stop", command=stopDuo).grid(row=14,column=2)
         
         
