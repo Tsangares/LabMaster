@@ -17,7 +17,6 @@ import time
 from random import randint
 
 import matplotlib
-import visa
 import xlsxwriter
 
 from Agilent import AgilentE4980a, Agilent4156

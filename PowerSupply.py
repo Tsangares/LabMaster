@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pyvisa
+import visa
 
 
 class PowerSupplyFactory(object):
@@ -44,7 +44,7 @@ class Keithley2657a(PowerSupplyFactory):
 
         assert (gpib_address >= 0), "Please enter a valid GPIB address"
 
-        resource_manager = pyvisa.ResourceManager()
+        resource_manager = visa.ResourceManager()
 
         # Temporarily set the power supply to point at the first address
         self.supply = resource_manager.\
@@ -164,7 +164,7 @@ class Keithley2400(PowerSupplyFactory):
         assert (gpib_address >= 0), "Please enter a valid gpib_address address"
 
         print("Initializing Keithley 2400")
-        resource_manager = pyvisa.ResourceManager()
+        resource_manager = visa.ResourceManager()
         self.supply = resource_manager.open_resource(resource_manager.list_resources()[0])
         for address in resource_manager.list_resources():
             if str(gpib_address) in address:

@@ -9,7 +9,6 @@ except ImportError:
 import ttk,time,threading
 import platform as platform
 
-
 from Agilent import AgilentE4980a, Agilent4156
 from PowerSupply import PowerSupplyFactory
 
@@ -67,8 +66,6 @@ class Settings:
 class GuiPart:
     
     def __init__(self, master, inputdata, outputdata, stopq):
-        print("in guipart")
-        
         self.master = master
         self.inputdata = inputdata
         self.outputdata = outputdata
@@ -80,7 +77,7 @@ class GuiPart:
         self.hold_time = StringVar()
         self.compliance = StringVar()
         
-        self.recipients = StringVar()   
+        self.recipients = StringVar()
         self.compliance_scale = StringVar()
         self.source_choice = StringVar()
         self.filename = StringVar()
@@ -174,12 +171,13 @@ class GuiPart:
         makeUnitEntry(self.duo.figure, "Number of Steps",self.duo.steps,3,"# of Steps")
         makeUnitEntry(self.duo.figure, "Measurement Delay",self.duo.delay,4,"secconds")
         makeUnitEntry(self.duo.figure, "Agilent Measuring Time",self.duo.measureTime,5,"secconds")
-        makeUnitEntry(self.duo.figure, "Agilent Samples",self.duo.samples,6,"# of samples")
-        makeUnitEntry(self.duo.figure, "Keithley Compliance",self.duo.keithley_compliance,7, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 1",self.duo.agilent_compliance1,8, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 2",self.duo.agilent_compliance2,9, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 3",self.duo.agilent_compliance3,10, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 4",self.duo.agilent_compliance4,11, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Hold Time",self.duo.hold_time,6,"secconds")
+        #makeUnitEntry(self.duo.figure, "Agilent Samples",self.duo.samples,6,"# of samples")
+        makeUnitEntry(self.duo.figure, "Keithley Compliance",self.duo.keithley_compliance,8, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 1",self.duo.agilent_compliance1,9, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 2",self.duo.agilent_compliance2,10, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 3",self.duo.agilent_compliance3,11, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 4",self.duo.agilent_compliance4,12, "mA")
         Button(self.duo.figure, text="Save Configuation", command=self.saveSettings).grid(row=15,column=2)
         Button(self.duo.figure, text="Start", command=self.prepDuo).grid(row=13,column=2)
         Button(self.duo.figure, text="Stop", command=stopDuo).grid(row=14,column=2)
@@ -385,8 +383,6 @@ class GuiPart:
         
         s = Button(self.f2, text="Stop", command=self.quit)
         s.grid(row=4, column=7)
-
-        print "finished drawing"
         
         """
         Multiple IV GUI
@@ -573,7 +569,7 @@ class GuiPart:
         
         s = Button(self.f5, text="Stop", command=self.quit)
         s.grid(row=4, column=7)
-        
+        print("Interface Generated")
         loadSettings(self)
         
     def update(self):
@@ -710,10 +706,17 @@ class GuiPart:
         self.stop.put("another random value")
         
     def prepDuo(self):
+        self.startDuo()
+        #print("Creating new thread.")
+        #self.duoThread = threading.Thread(target=self.startDuo)
+        #self.duoThread.start()
+        
+    def startDuo(self):
         obj=self.duo
         return runDuo(delay=float(obj.delay.get()),
                       measureTime=float(obj.measureTime.get()),
                       samples=float(obj.samples.get()),
+                      holdTime=float(obj.hold_time.get()),
                       startV=float(obj.start_volt.get()),
                       endV=float(obj.end_volt.get()),
                       steps=int(obj.steps.get()),
@@ -724,7 +727,6 @@ class GuiPart:
                       comp3=float(obj.agilent_compliance3.get()),
                       comp4=float(obj.agilent_compliance4.get())
         )
-
     
     def prepare_values(self):
         print "preparing iv values"
@@ -788,7 +790,6 @@ class ThreadedProgram:
         self.inputdata = Queue.Queue()
         self.outputdata = Queue.Queue()
         self.stopqueue = Queue.Queue()
-        print "Generating GUI"
         
         self.running = 1
         self.gui = GuiPart(master, self.inputdata, self.outputdata, self.stopqueue)
@@ -838,7 +839,7 @@ class ThreadedProgram:
         self.master.destroy()
         import sys
         sys.exit(0)
-
+        
 root = Tk()
 root.geometry('800x800')
 root.title('LabMaster')

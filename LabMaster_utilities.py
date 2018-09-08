@@ -5,12 +5,12 @@ SAVE_FILE=".settings.json"
 def loadSettings(gui):
     settings=None
     try:
-        print("Loading save.")
         with open(SAVE_FILE, 'r') as f:
             f.seek(0)
             settings=json.loads(f.read())
         setCVSettings(gui,settings['cv'])
         setDuoSettings(gui,settings['duo'])
+        print("Loaded saved configuration.")
     except Exception as e:
         print(e)
 
@@ -88,6 +88,5 @@ def setDuoSettings(gui,duo):
     s.agilent_compliance2.set(duo['comp2'])
     s.agilent_compliance3.set(duo['comp3'])
     s.agilent_compliance4.set(duo['comp4'])
-    print(vars(s))
 
 

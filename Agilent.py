@@ -1,5 +1,4 @@
-import pyvisa, time, visa
-
+import time, visa
 
 class Agilent4156(object):
 
@@ -10,7 +9,7 @@ class Agilent4156(object):
         self.gpib_addr = gpib
 
         print("Initializing Agilent semiconductor parameter analyzer")
-        rm = pyvisa.ResourceManager()
+        rm = visa.ResourceManager()
         self.inst = rm.list_resources()[0]
         for x in rm.list_resources():
             if str(self.gpib_addr) in x:
@@ -127,7 +126,7 @@ class AgilentE4980a(object):
         self.gpib_addr = gpib
 
         print("Initializing agilent lcr_meter")
-        rm = pyvisa.ResourceManager()
+        rm = visa.ResourceManager()
         self.inst = 0
         for x in rm.list_resources():
             if str(self.gpib_addr) in x:
@@ -206,7 +205,9 @@ class Instrument:
         return "working"
 
     def connect(self,name):
+        print("always get here")
         rm=visa.ResourceManager()
+        print("never get here")
         for device in rm.list_resources():
             inst=rm.open_resource(device)
             if name in self.getName(inst):
@@ -305,7 +306,6 @@ class Agilent4155C(Instrument):
     
     def setHoldTime(self, time):
         self.write(":PAGE:MEAS:%s:HTIMe %s"%(self.mode,time))
-        print("Set hold time to %s."%time)
 
     def testSampleMode(self):
         if self.mode is None or "SAMP" not in self.mode.upper():
@@ -342,7 +342,7 @@ class Agilent4155C(Instrument):
             print("Compliance too high, must be below .1 A")
         else:
             self.prefixWrite("COMPliance %s"%compliance)
-        print("Set voltage to %sV and compliance to %sA."%(voltage,compliance))
+        print("Set voltage to %sV and compliance to %sA on Agilent's channel %s."%(voltage,compliance,channel))
 
         #Add to variable lists
         inputName="V%s"%channel
@@ -351,6 +351,7 @@ class Agilent4155C(Instrument):
             self.inputs.append(inputName)
         if outputName not in self.outputs:
             self.outputs.append(outputName)
+        self.write(":PAGE:GLIS:LIST")
 
     # Sets output data to ascii instead of binary
     def setOutputReadable(self):
@@ -377,7 +378,10 @@ class Agilent4155C(Instrument):
         self.setOutputReadable()
         self.prepareMeasurement()
         self.run()
-        while self.query("*OPC?") == "0": continue
+        try:
+            self.query("*OPC?")
+        except visa.VisaIOError:
+            print("Agilent timed out when asked if operation is complete. Lower meas. time to remove this warning.")
         return self.getResults()
 
 
