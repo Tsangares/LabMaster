@@ -23,13 +23,9 @@ def send_mail(attached_file_name, recipients):
     email_message['To'] = ", ".join(recipients)
     email_message['Date'] = formatdate(localtime=True)
     email_message.attach(MIMEText("Your experiment has finished!"))
-    attach = MIMEBase('application', 'octet-stream')
-    attach.set_payload(open(attached_file_name, 'rb').read())
-    encoders.encode_base64(attach)
-    attach.add_header('Content-Disposition', 'attachment; filename="{}"'.format(attached_file_name))
-    email_message.attach(attach)
 
-
+    attachFile(email_message,filename=attached_file_name)
+    
     send_email_connection = smtplib.SMTP(SMTP_SERVER)
     send_email_connection.starttls()
     send_email_connection.login(EMAIL_USERNAME, EMAIL_PASSWORD)
@@ -41,3 +37,16 @@ def send_mail(attached_file_name, recipients):
     )
 
     send_email_connection.quit()
+
+def attachFile(email,payload=None,filename=None):
+    attach = MIMEBase('application', 'octet-stream')
+    if filename is not None:
+        attach.set_payload(open(attached_file_name, 'rb').read())
+    elif payload is not None:
+        attach.set_payload(payload)
+    else:
+        print("No attachments")
+        return
+    encoders.encode_base64(attach)
+    attach.add_header('Content-Disposition', 'attachment; filename="%s"'%attached_file_name)
+    email.attach(attach)

@@ -15,7 +15,7 @@ from PowerSupply import PowerSupplyFactory
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import pyplot as plt
 
-from LabMaster_utilities import *
+from LabMaster_save import *
 from LabMaster import *
 from LabMaster_duo import *
 
