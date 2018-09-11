@@ -721,11 +721,11 @@ class GuiPart:
                       endV=float(obj.end_volt.get()),
                       steps=int(obj.steps.get()),
                       integration=obj.integration.get(),
-                      keithley_comp=float(obj.keithley_compliance.get()),
-                      comp1=float(obj.agilent_compliance1.get()),
-                      comp2=float(obj.agilent_compliance2.get()),
-                      comp3=float(obj.agilent_compliance3.get()),
-                      comp4=float(obj.agilent_compliance4.get())
+                      keithley_comp=float(obj.keithley_compliance.get())/1000,
+                      comp1=float(obj.agilent_compliance1.get())/1000,
+                      comp2=float(obj.agilent_compliance2.get())/1000,
+                      comp3=float(obj.agilent_compliance3.get())/1000,
+                      comp4=float(obj.agilent_compliance4.get())/1000
         )
     
     def prepare_values(self):

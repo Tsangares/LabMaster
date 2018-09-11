@@ -26,7 +26,7 @@ def averageCurrent(result):
 
 #make sperearte cpmliance field for each input including the keithly
 def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4):
-    keithley_comp/=1000 #input as amps, but we need it in units of miliamps because that is what we prompted the user for.
+    #keithley_comp #input as amps, but we need it in units of miliamps because that is what we prompted the user for.
     currents=[]
     stop=False
     
@@ -39,11 +39,11 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     #Sets all of the inputs, and get a current reading.
     logging.debug('starting timers')
     agilent=Agilent4155C(reset=True)
+    agilent.setSamplingMode()
     agilent.setVoltage(1,0,comp1)
     agilent.setVoltage(2,0,comp2)
     agilent.setVoltage(3,0,comp3)
     agilent.setVoltage(4,0,comp4)
-    agilent.setSamplingMode()
     agilent.inst.timeout=25000 #timeout set to 25 sec
     print("Set integreation time to medium.")
     agilent.setMedium() #Integration Time

@@ -339,10 +339,10 @@ class Agilent4155C(Instrument):
         self.setPrefix(":PAGE:MEAS:%s:CONS:SMU%s"%(self.mode,channel))
         self.prefixWrite("SOURce %s"%voltage) #in 100mA
         if compliance > .1:
-            print("Compliance too high, must be below .1 A")
+            print("Compliance too high, must be below 100 mA")
         else:
-            self.prefixWrite("COMPliance %s"%compliance)
-        print("Set voltage to %sV and compliance to %sA on Agilent's channel %s."%(voltage,compliance,channel))
+            self.prefixWrite("COMPliance %.10f"%compliance)
+        print("Set voltage to %sV and compliance to %.10fA on Agilent's channel %s."%(voltage,compliance,channel))
 
         #Add to variable lists
         inputName="V%s"%channel
