@@ -29,7 +29,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import pyplot as plt
 
 from LabMaster_gui import *
-from LabMaster_utilities import *
+
 
 debug = False
 
