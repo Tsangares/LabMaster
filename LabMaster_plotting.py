@@ -2,6 +2,7 @@ import xlsxwriter
 import matplotlib
 import time
 import platform
+from random import random
 from numpy import linspace
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import pyplot as plt
@@ -25,4 +26,14 @@ def writeExcel(data,filename):
         column+=1
     #chart?
 
-    
+
+def getNoise(n=100):
+    returnlinspace((random()*10)**random()*10,(random()*10)**random()*10,n)
+def test():
+    data={
+        "Keithley I": linspace(0,7,100),
+        "I1": linspace(random(),random(),100),
+        "I2": getNoise(),
+        "I3": getNoise(),
+        "I4": getNoise()
+        }
