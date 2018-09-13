@@ -5,8 +5,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
 
-EMAIL_USERNAME = "***REMOVED***"
-EMAIL_PASSWORD = "***REMOVED***"
+EMAIL_USERNAME = ""
+EMAIL_PASSWORD = ""
 SMTP_SERVER = "smtp.gmail.com:587"
 
 #Files is an array of (payload, name) 2-tuples.
