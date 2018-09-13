@@ -19,8 +19,9 @@ from LabMaster_save import *
 from LabMaster import *
 from LabMaster_duo import *
 
-# These are helper functions that are common GUI objects.
+from multiprocessing import Process
 
+# These are helper functions that are common GUI objects.
 # makeEntry is a text label and a string input
 def makeEntry(fig,title,var,row):
     obj = Label(fig, text=title)
@@ -706,28 +707,39 @@ class GuiPart:
         self.stop.put("another random value")
         
     def prepDuo(self):
-        self.startDuo()
-        #print("Creating new thread.")
-        #self.duoThread = threading.Thread(target=self.startDuo)
-        #self.duoThread.start()
-        
-    def startDuo(self):
         obj=self.duo
-        return runDuo(delay=float(obj.delay.get()),
-                      measureTime=float(obj.measureTime.get()),
-                      samples=float(obj.samples.get()),
-                      holdTime=float(obj.hold_time.get()),
-                      startV=float(obj.start_volt.get()),
-                      endV=float(obj.end_volt.get()),
-                      steps=int(obj.steps.get()),
-                      integration=obj.integration.get(),
-                      keithley_comp=float(obj.keithley_compliance.get())/1000,
-                      comp1=float(obj.agilent_compliance1.get())/1000,
-                      comp2=float(obj.agilent_compliance2.get())/1000,
-                      comp3=float(obj.agilent_compliance3.get())/1000,
-                      comp4=float(obj.agilent_compliance4.get())/1000
-        )
-    
+        runDuo(float(obj.delay.get()),
+                      float(obj.measureTime.get()),
+                      float(obj.samples.get()),
+                      float(obj.hold_time.get()),
+                      float(obj.start_volt.get()),
+                      float(obj.end_volt.get()),
+                      int(obj.steps.get()),
+                      obj.integration.get(),
+                      float(obj.keithley_compliance.get())/1000,
+                      float(obj.agilent_compliance1.get())/1000,
+                      float(obj.agilent_compliance2.get())/1000,
+                      float(obj.agilent_compliance3.get())/1000,
+                      float(obj.agilent_compliance4.get())/1000)
+        '''
+        self.first = True
+        obj=self.duo
+        input_params = ((float(obj.delay.get()),
+                      float(obj.measureTime.get()),
+                      float(obj.samples.get()),
+                      float(obj.hold_time.get()),
+                      float(obj.start_volt.get()),
+                      float(obj.end_volt.get()),
+                      int(obj.steps.get()),
+                      obj.integration.get(),
+                      float(obj.keithley_compliance.get())/1000,
+                      float(obj.agilent_compliance1.get())/1000,
+                      float(obj.agilent_compliance2.get())/1000,
+                      float(obj.agilent_compliance3.get())/1000,
+                      float(obj.agilent_compliance4.get())/1000),5)
+        self.inputdata.put(input_params)
+        self.type = 5
+        '''
     def prepare_values(self):
         print "preparing iv values"
         input_params = ((self.compliance.get(), self.compliance_scale.get(), self.start_volt.get(), self.end_volt.get(), self.step_volt.get(), self.hold_time.get(), self.source_choice.get(), self.recipients.get(), self.filename.get()), 0)
@@ -831,6 +843,8 @@ class ThreadedProgram:
                     multiv_getvalues(params, self.outputdata, self.stopqueue)
                 elif type is 4:
                     curmon_getvalues(params, self.outputdata, self.stopqueue)
+                elif type is 5:
+                    startDuo(params, self.outputdata, self.stopqueue)
                 else:
                     pass
                 self.measuring = False

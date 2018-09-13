@@ -4,6 +4,8 @@ from numpy import linspace
 from time import sleep
 import logging
 import matplotlib.pyplot as plt
+from multiprocessing import Process
+from LabMaster_plotting import *
 _currentV=None
 stop=False
 
@@ -23,6 +25,10 @@ def averageCurrent(result):
         currents=result[key][1:]
         output[key]=sum(currents)/len(currents)
     return output
+
+def startDuo(params, outputdata, stopqueue):
+    (delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4)=params
+    runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4)
 
 #make sperearte cpmliance field for each input including the keithly
 def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4):
@@ -71,6 +77,12 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     print("Done.")
     print("Voltages %s"%voltages)
     print("Currents %s"%currents)
+    excelData={'V': voltages, 'keithley': [], 'I1': [], 'I2': [], 'I3': [], 'I4': []}
+    for current in currents:
+        for key in current:
+            excelData[key].append(current[key])
+    print("test writing to excel.")
+    writeExcel(excelData,'test.xlsx')
     return voltages,currents
     
 def stopDuo():

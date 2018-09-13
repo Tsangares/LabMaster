@@ -25,6 +25,7 @@ def writeExcel(data,filename):
             worksheet.write(i+1,column,value) #i+1 because the title is above
         column+=1
     #chart?
+    workbook.close()
 
 
 def getNoise(n=100):
