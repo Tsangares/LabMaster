@@ -155,6 +155,7 @@ class GuiPart:
         self.iv.buildLabels()
         
         self.duo = Settings(n)
+        self.duo.filename=StringVar(root, "happy")
         self.duo.steps=StringVar(root, "1")
         self.duo.delay=StringVar(root, "0")
         self.duo.measureTime=StringVar(root, "0")
@@ -169,19 +170,21 @@ class GuiPart:
                                 
         self.f6=self.duo.figure
         self.duo.buildLabels(compliance=False,hold=False,step=False)
-        makeUnitEntry(self.duo.figure, "Number of Steps",self.duo.steps,3,"# of Steps")
-        makeUnitEntry(self.duo.figure, "Measurement Delay",self.duo.delay,4,"secconds")
-        makeUnitEntry(self.duo.figure, "Agilent Measuring Time",self.duo.measureTime,5,"secconds")
-        makeUnitEntry(self.duo.figure, "Agilent Hold Time",self.duo.hold_time,6,"secconds")
+        makeEntry(self.duo.figure, "Email",self.duo.recipients,3)
+        makeEntry(self.duo.figure, "Excel filename (omit .xlsx)",self.duo.filename,4)
+        makeUnitEntry(self.duo.figure, "Number of Steps",self.duo.steps,5,"# of Steps")
+        makeUnitEntry(self.duo.figure, "Measurement Delay",self.duo.delay,6,"secconds")
+        makeUnitEntry(self.duo.figure, "Agilent Measuring Time",self.duo.measureTime,7,"secconds")
+        makeUnitEntry(self.duo.figure, "Agilent Hold Time",self.duo.hold_time,8,"secconds")
         #makeUnitEntry(self.duo.figure, "Agilent Samples",self.duo.samples,6,"# of samples")
-        makeUnitEntry(self.duo.figure, "Keithley Compliance",self.duo.keithley_compliance,8, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 1",self.duo.agilent_compliance1,9, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 2",self.duo.agilent_compliance2,10, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 3",self.duo.agilent_compliance3,11, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 4",self.duo.agilent_compliance4,12, "mA")
-        Button(self.duo.figure, text="Save Configuation", command=self.saveSettings).grid(row=15,column=2)
-        Button(self.duo.figure, text="Start", command=self.prepDuo).grid(row=13,column=2)
-        Button(self.duo.figure, text="Stop", command=stopDuo).grid(row=14,column=2)
+        makeUnitEntry(self.duo.figure, "Keithley Compliance",self.duo.keithley_compliance,9, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 1",self.duo.agilent_compliance1,10, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 2",self.duo.agilent_compliance2,11, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 3",self.duo.agilent_compliance3,12, "mA")
+        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 4",self.duo.agilent_compliance4,13, "mA")
+        Button(self.duo.figure, text="Save Configuation", command=self.saveSettings).grid(row=18,column=2)
+        Button(self.duo.figure, text="Start", command=self.prepDuo).grid(row=16,column=2)
+        Button(self.duo.figure, text="Stop", command=stopDuo).grid(row=17,column=2)
         
         
         n.add(self.duo.figure, text="Duo IV")
@@ -720,7 +723,9 @@ class GuiPart:
                       float(obj.agilent_compliance1.get())/1000,
                       float(obj.agilent_compliance2.get())/1000,
                       float(obj.agilent_compliance3.get())/1000,
-                      float(obj.agilent_compliance4.get())/1000)
+                      float(obj.agilent_compliance4.get())/1000,
+                      obj.recipients.get(),
+                      obj.filename.get())
         '''
         self.first = True
         obj=self.duo

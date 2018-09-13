@@ -5,8 +5,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
 
-EMAIL_USERNAME = ""
-EMAIL_PASSWORD = ""
+EMAIL_USERNAME = "adapbot@gmail.com"
+EMAIL_PASSWORD = "AdapBot143"
 SMTP_SERVER = "smtp.gmail.com:587"
 
 #Files is an array of (payload, name) 2-tuples.
@@ -20,7 +20,11 @@ def send_mail(attached_file_name, recipients, files=[]):
     email_message = MIMEMultipart()
     email_message['Subject'] = 'Experiment Data'
     email_message['From'] = EMAIL_USERNAME
-    email_message['To'] = ", ".join(recipients)
+    try:
+        email_message['To'] = ", ".join(recipients)
+    except Exception:
+        email_message['To'] = recipients #one recipient
+            
     email_message['Date'] = formatdate(localtime=True)
     email_message.attach(MIMEText("Your experiment has finished!"))
 

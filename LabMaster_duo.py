@@ -6,6 +6,8 @@ import logging
 import matplotlib.pyplot as plt
 from multiprocessing import Process
 from LabMaster_plotting import *
+from emailbot import *
+
 _currentV=None
 stop=False
 
@@ -30,8 +32,20 @@ def startDuo(params, outputdata, stopqueue):
     (delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4)=params
     runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4)
 
+def printMeasurement(meas):
+    print "Measurement: ",
+    for key in meas:
+        print "%s is %.03eA; "%(key,meas[key]),
+    print "\n"
+
+def checkComplianceBreach(compliances,measurements):
+    for key in compliances:
+            if compliances[key]<measurements[key]:
+                print("Compliance reached, shutting it down.")
+                return True
+
 #make sperearte cpmliance field for each input including the keithly
-def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4):
+def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4,email,filename):
     #keithley_comp #input as amps, but we need it in units of miliamps because that is what we prompted the user for.
     currents=[]
     stop=False
@@ -57,7 +71,15 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     #Now setup the keithly
     keithley = Keithley2657a()
     keithley.configure_measurement(1, 0, keithley_comp)
-    
+
+    #Map to check if compliances are reached.
+    compliances={
+            'keithley': keithley_comp,
+            'I1': comp1, #this variable name corresponds to the keithley variable.
+            'I2': comp2,
+            'I3': comp3,
+            'I4': comp4
+        }
     print("=== START Prelim Test Measurement ===")
     print("Agilent Current: %s"%agilent.getCurrent(agilent_samples,agilent_duration))
     print("Keithley Current: %s"%keithley.get_current())
@@ -72,7 +94,10 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
         time.sleep(delay)
         measurement=skipMeasurements(agilent.getCurrent(agilent_samples,agilent_duration), skip=1)
         measurement['keithley']=keithley.get_current()
+        printMeasurement(measurement)
         currents.append(measurement)
+        if checkComplianceBreach(compliances, measurement): break
+    
     powerDownPSU(voltages[-1],keithley)
     print("Done.")
     print("Voltages %s"%voltages)
@@ -81,8 +106,12 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     for current in currents:
         for key in current:
             excelData[key].append(current[key])
-    print("test writing to excel.")
-    writeExcel(excelData,'test.xlsx')
+
+    print("Finalizing data.")
+    filename=writeExcel(excelData,'test')
+    print("Wrote to excel file.")
+    send_mail(filename,email)
+    print("Sent email.")
     return voltages,currents
     
 def stopDuo():

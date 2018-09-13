@@ -27,13 +27,11 @@ def writeExcel(data,filename,time=True):
         values=data[key]
         worksheet.write(0,column,key)
         for i,value in enumerate(values):
-            worksheet.write(i+1,column,value) #i+1 because the title is above
+            worksheet.write(i+1,column,float(value)) #i+1 because the title is above
         column+=1
     #chart?
     workbook.close()
-<<<<<<< HEAD
-=======
     return file_url
->>>>>>> df68da9b4bbf77b11d5469a9030e4ffca7140960
+
 
 

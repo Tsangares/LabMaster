@@ -71,6 +71,7 @@ def getDuoSettings(gui):
     duo['comp2']=s.agilent_compliance2.get()
     duo['comp3']=s.agilent_compliance3.get()
     duo['comp4']=s.agilent_compliance4.get()
+    duo['email']=s.recipients.get()
     return duo
 
 def setDuoSettings(gui,duo):
@@ -88,5 +89,6 @@ def setDuoSettings(gui,duo):
     s.agilent_compliance2.set(duo['comp2'])
     s.agilent_compliance3.set(duo['comp3'])
     s.agilent_compliance4.set(duo['comp4'])
+    s.recipients.set(duo['email'])
 
 
