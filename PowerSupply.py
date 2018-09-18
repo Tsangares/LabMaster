@@ -147,8 +147,14 @@ class Keithley2657a(PowerSupplyFactory):
         """
 
         return float(self.supply.query("printnumber(smua.measure.i())").split("\n")[0])
+    def get_voltage(self):
+        """
+        Query the device for a voltage reading
+        :return: float representation of the current measured
+        """
 
-
+        return float(self.supply.query("printnumber(smua.measure.v())").split("\n")[0])
+    
 class Keithley2400(PowerSupplyFactory):
     """
     Object which control the Keithley 2400 series high voltage supplies

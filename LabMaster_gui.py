@@ -67,6 +67,7 @@ class Settings:
 class GuiPart:
     
     def __init__(self, master, inputdata, outputdata, stopq):
+        print("Interface Generating")
         self.master = master
         self.inputdata = inputdata
         self.outputdata = outputdata
@@ -185,7 +186,7 @@ class GuiPart:
         Button(self.duo.figure, text="Save Configuation", command=self.saveSettings).grid(row=18,column=2)
         Button(self.duo.figure, text="Start", command=self.prepDuo).grid(row=16,column=2)
         Button(self.duo.figure, text="Stop", command=stopDuo).grid(row=17,column=2)
-        
+        print("Checkpoint")
         
         n.add(self.duo.figure, text="Duo IV")
         n.add(self.iv.figure, text='Basic IV')        
@@ -196,7 +197,7 @@ class GuiPart:
         
         
 
-        
+        print("Asking for platform")
         if "Windows" in platform.platform():
             self.filename.set("LabMasterData\iv_data")
             s = Label(self.f1, text="File name:")
@@ -803,6 +804,7 @@ class GuiPart:
 class ThreadedProgram:
     
     def __init__(self, master):
+        print("Setting up threads")
         self.master = master
         self.inputdata = Queue.Queue()
         self.outputdata = Queue.Queue()
@@ -810,8 +812,8 @@ class ThreadedProgram:
         
         self.running = 1
         self.gui = GuiPart(master, self.inputdata, self.outputdata, self.stopqueue)
-        
         self.thread1 = threading.Thread(target=self.workerThread1)
+        print("Starting thread")
         self.thread1.start()
         self.periodicCall()
         self.measuring = False

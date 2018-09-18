@@ -9,6 +9,7 @@ from LabMaster_plotting import *
 from emailbot import *
 import StringIO
 import urllib, base64
+import json
 
 _currentV=None
 stop=False
@@ -33,6 +34,12 @@ def averageCurrent(result):
 def startDuo(params, outputdata, stopqueue):
     (delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4)=params
     runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4)
+
+def writeTemp(data, filename="CurrentRun.json"):
+    with open(filename, 'w+') as f:
+        f.write(json.dumps(data))
+    
+        
 
 def printMeasurement(meas):
     print "Measurement: ",
@@ -87,8 +94,9 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     print("Keithley Current: %s"%keithley.get_current())
     print("===  END   Prelim Test Measurement ===")
 
-    voltages=linspace(startV,endV,steps+1)
-    for volt in voltages:
+    voltages=list(linspace(startV,endV,steps+1))
+    
+    for i,volt in enumerate(voltages):
         _currentV=volt
         print("Setting Keithley to %.03fV and measuring current."%volt)
         if stop: return
@@ -98,13 +106,16 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
         measurement['keithley']=keithley.get_current()
         printMeasurement(measurement)
         currents.append(measurement)
-        if checkComplianceBreach(compliances, measurement): break
+        writeTemp({'voltages':voltages,'measurements':measurement,'compliances':compliances},filename="excel/"+excelName+".json")  
+        if checkComplianceBreach(compliances, measurement):
+            voltages=voltages[:i]
+            break
     
-    powerDownPSU(voltages[-1],keithley)
-    print("Done.")
-    print("Voltages %s"%voltages)
-    print("Currents %s"%currents)
-    print("Finalizing data.")
+    powerDownPSU(keithley=keithley)
+    #print("Done.")
+    #print("Voltages %s"%voltages)
+    #print("Currents %s"%currents)
+    print("finished. Finalizing data.")
     
     excelData={'V': voltages, 'keithley': [], 'I1': [], 'I2': [], 'I3': [], 'I4': []}
     for current in currents:
@@ -113,7 +124,6 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
 
     excelData['leakage']=[]
     for i, V in enumerate(excelData['V']):
-        print(i)
         leakage=excelData['keithley'][i]+excelData['I1'][i]+excelData['I2'][i]+excelData['I3'][i]+excelData['I4'][i]
         excelData['leakage'].append(leakage)
         
@@ -145,10 +155,11 @@ def stopDuo():
     powerDownPSU(0)
     print("Keithley at 0 volts.")
 
-def powerDownPSU(_currentV,keithley=None):
+def powerDownPSU(keithley=None):
     if keithley is None: keithley = Keithley2657a()
-    print("Ramping voltage down from %s to 0 in 1 seccond."%_currentV)
-    voltages=linspace(_currentV,0,100)
+    voltage=keithley.get_voltage()
+    print("Ramping voltage down from %s to 0 in 1 seccond."%voltage)
+    voltages=linspace(voltage,0,100)
     for volt in voltages:
         keithley.set_output(volt)
         time.sleep(.01)
