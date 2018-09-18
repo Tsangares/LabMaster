@@ -171,7 +171,7 @@ class GuiPart:
         self.f6=self.duo.figure
         self.duo.buildLabels(compliance=False,hold=False,step=False)
         makeEntry(self.duo.figure, "Email",self.duo.recipients,3)
-        makeEntry(self.duo.figure, "Excel filename (omit .xlsx)",self.duo.filename,4)
+        makeEntry(self.duo.figure, "Filename (omit .xlsx)",self.duo.filename,4)
         makeUnitEntry(self.duo.figure, "Number of Steps",self.duo.steps,5,"# of Steps")
         makeUnitEntry(self.duo.figure, "Measurement Delay",self.duo.delay,6,"secconds")
         makeUnitEntry(self.duo.figure, "Agilent Measuring Time",self.duo.measureTime,7,"secconds")
