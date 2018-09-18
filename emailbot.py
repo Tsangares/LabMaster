@@ -48,6 +48,7 @@ def attachFile(email,payload=None,name=None,filename=None):
     attach = MIMEBase('application', 'octet-stream')
     if payload is not None:
         attach.set_payload(payload)
+        if ".png" not in name: name+=".png"
     elif filename is not None:
         attach.set_payload(open(filename, 'rb').read())
     else:

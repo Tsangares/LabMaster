@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from multiprocessing import Process
 from LabMaster_plotting import *
 from emailbot import *
+import StringIO
+import urllib, base64
 
 _currentV=None
 stop=False
@@ -34,18 +36,18 @@ def startDuo(params, outputdata, stopqueue):
 
 def printMeasurement(meas):
     print "Measurement: ",
-    for key in meas:
-        print "%s is %.03eA; "%(key,meas[key]),
+    for key,val in meas.iteritems():
+        print "%s is %.03eA; "%(key,val),
     print "\n"
 
 def checkComplianceBreach(compliances,measurements):
-    for key in compliances:
-            if compliances[key]<measurements[key]:
+    for key,comp in compliances.iteritems():
+            if comp<measurements[key]:
                 print("Compliance reached, shutting it down.")
                 return True
 
 #make sperearte cpmliance field for each input including the keithly
-def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4,email,filename):
+def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4,email,excelName):
     #keithley_comp #input as amps, but we need it in units of miliamps because that is what we prompted the user for.
     currents=[]
     stop=False
@@ -85,7 +87,7 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     print("Keithley Current: %s"%keithley.get_current())
     print("===  END   Prelim Test Measurement ===")
 
-    voltages=linspace(startV,endV,steps)
+    voltages=linspace(startV,endV,steps+1)
     for volt in voltages:
         _currentV=volt
         print("Setting Keithley to %.03fV and measuring current."%volt)
@@ -102,25 +104,45 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     print("Done.")
     print("Voltages %s"%voltages)
     print("Currents %s"%currents)
+    print("Finalizing data.")
+    
     excelData={'V': voltages, 'keithley': [], 'I1': [], 'I2': [], 'I3': [], 'I4': []}
     for current in currents:
-        for key in current:
-            excelData[key].append(current[key])
+        for key,value in current.iteritems():
+            excelData[key].append(value)
 
-    print("Finalizing data.")
-    filename=writeExcel(excelData,'test')
+    excelData['leakage']=[]
+    for i, V in enumerate(excelData['V']):
+        print(i)
+        leakage=excelData['keithley'][i]+excelData['I1'][i]+excelData['I2'][i]+excelData['I3'][i]+excelData['I4'][i]
+        excelData['leakage'].append(leakage)
+        
+    filename=writeExcel(excelData,excelName)
     print("Wrote to excel file.")
-    send_mail(filename,email)
+    #MAKE SOME PLOTS
+    files=[]
+    plots=[('V', 'keithley'),('V', 'I1'),('V', 'I2'),('V', 'I3'),('V', 'I4'),('V', 'leakage')]
+    plt.cla()
+    for x,y in plots:
+        title="%s vs %s"%(x,y)
+        plt.plot(excelData[x],excelData[y])
+        fig = plt.gcf()
+        imgdata = StringIO.StringIO()
+        fig.savefig(imgdata, format='png')
+        imgdata.seek(0)
+        files.append((imgdata.buf, title))
+        
+    send_mail(filename,email,files=files)
     print("Sent email.")
     return voltages,currents
     
 def stopDuo():
     print("Stop requested.")
-    if _currentV is None:
-        print("Stop called before start.")
-        return
-    stop=True
-    powerDownPSU()
+    #if _currentV is None:
+    #    print("Stop called before start.")
+    #    return
+    #stop=True
+    powerDownPSU(0)
     print("Keithley at 0 volts.")
 
 def powerDownPSU(_currentV,keithley=None):
