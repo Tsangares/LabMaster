@@ -1,1 +1,1 @@
-{"measurements": {"I1": 6.789e-11, "keithley": -1.12818e-09, "I3": 9e-14, "I2": 1.14192e-09, "I4": 2.1e-13}, "compliances": {"I1": 1e-06, "keithley": 1e-05, "I3": 1e-06, "I2": 1e-06, "I4": 1e-06}, "voltages": [0.0, 0.0, 0.0, 0.0]}
+{"measurements": {"I1": 2.1e-13, "keithley": -5.49555e-13, "I3": 8e-14, "I2": -3.4e-13, "I4": 2.1e-13}, "compliances": {"I1": 1e-06, "keithley": 1e-05, "I3": 1e-06, "I2": 1e-06, "I4": 1e-06}, "voltages": [0.0, 0.0, 0.0, 0.0, 0.0]}

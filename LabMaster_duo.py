@@ -1,6 +1,7 @@
 from Agilent import *
 from PowerSupply import *
 from numpy import linspace
+import time
 from time import sleep
 import logging
 import matplotlib.pyplot as plt
@@ -50,9 +51,11 @@ def printMeasurement(meas):
 def checkComplianceBreach(compliances,measurements):
     for key,comp in compliances.iteritems():
             if comp<measurements[key]:
-                print("Compliance reached, shutting it down.")
+                print("Compliance reached, continuing to analysis.")
                 return True
-
+            else:
+                return False
+            
 #make sperearte cpmliance field for each input including the keithly
 def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4,email,excelName):
     #keithley_comp #input as amps, but we need it in units of miliamps because that is what we prompted the user for.
@@ -98,7 +101,7 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     
     for i,volt in enumerate(voltages):
         _currentV=volt
-        print("Setting Keithley to %.03fV and measuring current."%volt)
+        print("Setting Keithley to %.03fV and measuring current. On step %s out of %s, %.01f%% done"%(volt,1+i,len(voltages),100*(i+1)/float(len(voltages))))
         if stop: return
         keithley.set_output(volt)
         time.sleep(delay)
@@ -106,9 +109,12 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
         measurement['keithley']=keithley.get_current()
         printMeasurement(measurement)
         currents.append(measurement)
-        writeTemp({'voltages':voltages,'measurements':measurement,'compliances':compliances},filename="excel/"+excelName+".json")  
+
+        #Write progress to file.
+        timestamp=datetime.today().strftime("_%Y_%b%d_%I.%M%p")
+        writeTemp({'voltages':voltages[:i+1],'measurements':measurement,'compliances':compliances},filename="excel/%s_%s.json"%(excelName,timestamp)) 
         if checkComplianceBreach(compliances, measurement):
-            voltages=voltages[:i]
+            voltages=voltages[:i+1]
             break
     
     powerDownPSU(keithley=keithley)
