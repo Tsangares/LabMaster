@@ -43,7 +43,7 @@ def writeTemp(data, filename="CurrentRun.json"):
 
 def printMeasurement(meas):
     print "Measurement: ",
-    for key,val in meas.iteritems():
+    for key,val in sorted(list(meas.iteritems()), key=lambda item: item[0]!='V'):
         print "%s is %.03eA; "%(key,val),
     print "\n"
 

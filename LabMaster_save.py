@@ -72,6 +72,7 @@ def getDuoSettings(gui):
     duo['comp3']=s.agilent_compliance3.get()
     duo['comp4']=s.agilent_compliance4.get()
     duo['email']=s.recipients.get()
+    duo['filename']=s.filename.get()
     return duo
 
 def setDuoSettings(gui,duo):
@@ -90,5 +91,6 @@ def setDuoSettings(gui,duo):
     s.agilent_compliance3.set(duo['comp3'])
     s.agilent_compliance4.set(duo['comp4'])
     s.recipients.set(duo['email'])
+    s.filename.set(duo['filename'])
 
 
