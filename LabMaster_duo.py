@@ -49,8 +49,9 @@ def printMeasurement(meas):
     print "\n"
 
 def checkComplianceBreach(compliances,measurements):
+    offset=.05 # If the measurement is within 5% of the compliance, shutdown.
     for key,comp in compliances.iteritems():
-            if comp<measurements[key]:
+            if (1-offset)*float(comp)<measurements[key]:
                 print("Compliance reached, continuing to analysis.")
                 return True
             else:
@@ -138,10 +139,12 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     #MAKE SOME PLOTS
     files=[]
     plots=[('V', 'keithley'),('V', 'I1'),('V', 'I2'),('V', 'I3'),('V', 'I4'),('V', 'leakage')]
-    plt.cla()
+  
     for x,y in plots:
         title="%s vs %s"%(x,y)
+        plt.cla()
         plt.plot(excelData[x],excelData[y])
+        plt.title(title)
         fig = plt.gcf()
         imgdata = StringIO.StringIO()
         fig.savefig(imgdata, format='png')
@@ -161,11 +164,17 @@ def stopDuo():
     powerDownPSU(0)
     print("Keithley at 0 volts.")
 
-def powerDownPSU(keithley=None):
+#`speed` is Volt per seccond
+def powerDownPSU(keithley=None, speed=5):
+    #Do volts per seccond. Reccomended 5
     if keithley is None: keithley = Keithley2657a()
     voltage=keithley.get_voltage()
-    print("Ramping voltage down from %s to 0 in 1 seccond."%voltage)
-    voltages=linspace(voltage,0,100)
+    timeStep=.01 #seccond delay per step
+   
+    voltStep=speed*timeStep
+    totalSteps=voltage/voltStep
+    print("At a rate of %sV/s with delay of %s, there will be %s steps at %sV per step."%(speed,timeStep,totalSteps,voltStep))
+    voltages=linspace(voltage,0,totalSteps)
     for volt in voltages:
         keithley.set_output(volt)
-        time.sleep(.01)
+        time.sleep(.timeStep)
