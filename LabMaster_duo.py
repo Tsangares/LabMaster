@@ -51,11 +51,10 @@ def printMeasurement(meas):
 def checkComplianceBreach(compliances,measurements):
     offset=.05 # If the measurement is within 5% of the compliance, shutdown.
     for key,comp in compliances.iteritems():
-            if (1-offset)*float(comp)<measurements[key]:
-                print("Compliance reached, continuing to analysis.")
-                return True
-            else:
-                return False
+        trueComp=(1-offset)*float(comp)
+        if trueComp<abs(measurements[key]):
+            print("Compliance reached, doing a few more test then stopping.")
+            return True
             
 #make sperearte cpmliance field for each input including the keithly
 def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4,email,excelName):
@@ -99,8 +98,10 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     print("===  END   Prelim Test Measurement ===")
 
     voltages=list(linspace(startV,endV,steps+1))
-    
+
+    lag=2 #Number of 
     for i,volt in enumerate(voltages):
+        if i==len(voltages): break #Compliance reached, voltage list concated
         _currentV=volt
         print("Setting Keithley to %.03fV and measuring current. On step %s out of %s, %.01f%% done"%(volt,1+i,len(voltages),100*(i+1)/float(len(voltages))))
         if stop: return
@@ -115,8 +116,7 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
         timestamp=datetime.today().strftime("_%Y_%b%d_%I.%M%p")
         writeTemp({'voltages':voltages[:i+1],'measurements':measurement,'compliances':compliances},filename="excel/%s_%s.json"%(excelName,timestamp)) 
         if checkComplianceBreach(compliances, measurement):
-            voltages=voltages[:i+1]
-            break
+            voltages=voltages[:i+1+lag]
     
     powerDownPSU(keithley=keithley)
     #print("Done.")
@@ -161,7 +161,7 @@ def stopDuo():
     #    print("Stop called before start.")
     #    return
     #stop=True
-    powerDownPSU(0)
+    powerDownPSU()
     print("Keithley at 0 volts.")
 
 #`speed` is Volt per seccond
@@ -170,11 +170,10 @@ def powerDownPSU(keithley=None, speed=5):
     if keithley is None: keithley = Keithley2657a()
     voltage=keithley.get_voltage()
     timeStep=.01 #seccond delay per step
-   
     voltStep=speed*timeStep
-    totalSteps=voltage/voltStep
-    print("At a rate of %sV/s with delay of %s, there will be %s steps at %sV per step."%(speed,timeStep,totalSteps,voltStep))
+    totalSteps=int(abs(voltage/voltStep))
+    print("At a rate of %sV/s with delay of %s, there will be %s steps at %sV per step for %s secconds."%(speed,timeStep,totalSteps,voltStep,totalSteps*timeStep))
     voltages=linspace(voltage,0,totalSteps)
     for volt in voltages:
         keithley.set_output(volt)
-        time.sleep(.timeStep)
+        time.sleep(voltStep)

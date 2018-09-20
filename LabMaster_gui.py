@@ -709,7 +709,7 @@ class GuiPart:
         print "placing order"
         self.stop.put("random")
         self.stop.put("another random value")
-        
+
     def prepDuo(self):
         obj=self.duo
         runDuo(float(obj.delay.get()),

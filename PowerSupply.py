@@ -145,8 +145,8 @@ class Keithley2657a(PowerSupplyFactory):
         Query the device for a current reading
         :return: float representation of the current measured
         """
-
         return float(self.supply.query("printnumber(smua.measure.i())").split("\n")[0])
+    
     def get_voltage(self):
         """
         Query the device for a voltage reading
