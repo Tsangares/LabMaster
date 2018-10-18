@@ -10,7 +10,7 @@ from LabMaster_plotting import *
 from emailbot import *
 import urllib, base64
 import json
-from io import StringIO
+from io import BytesIO
 _currentV=None
 stop=False
 
@@ -40,13 +40,13 @@ def writeTemp(data, filename="CurrentRun.json"):
 
 def printMeasurement(meas):
     print("Measurement: ",)
-    for key,val in sorted(list(meas.iteritems()), key=lambda item: item[0]!='V'):
+    for key,val in sorted(list(meas.items()), key=lambda item: item[0]!='V'):
         print("%s is %.03eA; "%(key,val),)
     print("\n")
 
 def checkComplianceBreach(compliances,measurements):
     offset=.01 # If the measurement is within 5% of the compliance, shutdown.
-    for key,comp in compliances.iteritems():
+    for key,comp in compliances.items():
         trueComp=(1-offset)*float(comp)
         if trueComp<abs(measurements[key]):
             print("Compliance reached, doing a few more test then stopping.")
@@ -124,7 +124,7 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
     
     excelData={'V': voltages, 'keithley': [], 'I1': [], 'I2': [], 'I3': [], 'I4': []}
     for current in currents:
-        for key,value in current.iteritems():
+        for key,value in current.items():
             excelData[key].append(value)
 
     excelData['leakage']=[]
@@ -145,10 +145,10 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
         plt.plot(excelData[x],excelData[y])
         plt.title(title)
         fig = plt.gcf()
-        imgdata = StringIO.StringIO()
+        imgdata = BytesIO()
         fig.savefig(imgdata, format='png')
         imgdata.seek(0)
-        files.append((imgdata.buf, title))
+        files.append((imgdata.getbuffer(), title))
         
     send_mail(filename,email,files=files)
     print("Sent email.")

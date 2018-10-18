@@ -12,6 +12,9 @@ from matplotlib import pyplot as plt
 from LabMaster_save import *
 from LabMaster_duo import *
 from PyQt5.QtWidgets import *
+from multiprocessing import Process
+from multiprocessing import Process
+from threading import Thread
 
 # These are helper functions that are common GUI objects.
 # makeEntry is a text label and a string input
@@ -161,6 +164,7 @@ class ValueHandler():
         
 class Gui:
     def __init__(self):
+        self.processes=[]
         self.app = QApplication([])
         self.window = QWidget()
         self.oracle=ValueHandler()
@@ -195,7 +199,7 @@ class Gui:
 
     def initDuo(self):
         oracle=self.oracle.getData()
-        runDuo(float(oracle['measDelay']),
+        args=(float(oracle['measDelay']),
                float(oracle['measTime']),
                1,
                float(oracle['holdTime']),
@@ -210,5 +214,8 @@ class Gui:
                float(oracle['comp4']),
                oracle['email'],
                oracle['filename'])
+        p=Thread(target=runDuo, args=args)
+        p.start()
+        self.processes.append(p)
 
 gui=Gui()

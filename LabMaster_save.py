@@ -66,7 +66,7 @@ def getDuoSettings(gui):
     duo['measureTime']=s.measureTime.get()
     duo['samples']=s.samples.get()
     duo['integration']=s.integration.get()
-    duo['keithley_comp']=s.keithley_compliance.get()
+    duo['kcomp']=s.keithley_compliance.get()
     duo['comp1']=s.agilent_compliance1.get()
     duo['comp2']=s.agilent_compliance2.get()
     duo['comp3']=s.agilent_compliance3.get()
