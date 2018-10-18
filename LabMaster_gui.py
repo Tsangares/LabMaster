@@ -19,7 +19,6 @@ from LabMaster_save import *
 from LabMaster import *
 from LabMaster_duo import *
 
-from multiprocessing import Process
 
 # These are helper functions that are common GUI objects.
 # makeEntry is a text label and a string input
@@ -142,10 +141,10 @@ class GuiPart:
         
         self.curmon_f = plt.figure(figsize=(6, 4), dpi=60)
         self.curmon_a = self.curmon_f.add_subplot(111)
-        
+        print("Checkpoint a")
         n = ttk.Notebook(root,width=800)
         n.grid(row=0, column=0, columnspan=100, rowspan=100, sticky='NESW')
-        
+        print("Checkpoint b")
         self.f2 = ttk.Frame(n)
         self.f3 = ttk.Frame(n)
         self.f4 = ttk.Frame(n)
@@ -154,7 +153,7 @@ class GuiPart:
         self.iv=Settings(n)
         self.f1=self.iv.figure
         self.iv.buildLabels()
-        
+        print("Checkpoint c")
         self.duo = Settings(n)
         self.duo.filename=StringVar(root, "happy")
         self.duo.steps=StringVar(root, "1")
@@ -168,7 +167,7 @@ class GuiPart:
         self.duo.agilent_compliance3=StringVar(root, "0")
         self.duo.agilent_compliance4=StringVar(root, "0")
 
-                                
+        print("Checkpoint d")                        
         self.f6=self.duo.figure
         self.duo.buildLabels(compliance=False,hold=False,step=False)
         makeEntry(self.duo.figure, "Email",self.duo.recipients,3)
@@ -186,7 +185,7 @@ class GuiPart:
         Button(self.duo.figure, text="Save Configuation", command=self.saveSettings).grid(row=18,column=2)
         Button(self.duo.figure, text="Start", command=self.prepDuo).grid(row=16,column=2)
         Button(self.duo.figure, text="Stop", command=stopDuo).grid(row=17,column=2)
-        print("Checkpoint")
+        
         
         n.add(self.duo.figure, text="Duo IV")
         n.add(self.iv.figure, text='Basic IV')        

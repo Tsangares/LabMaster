@@ -5,13 +5,12 @@ import time
 from time import sleep
 import logging
 import matplotlib.pyplot as plt
-from multiprocessing import Process
+from threading import Thread
 from LabMaster_plotting import *
 from emailbot import *
-import StringIO
 import urllib, base64
 import json
-
+from io import StringIO
 _currentV=None
 stop=False
 
@@ -32,30 +31,27 @@ def averageCurrent(result):
         output[key]=sum(currents)/len(currents)
     return output
 
-def startDuo(params, outputdata, stopqueue):
-    (delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4)=params
+def startDuo():
     runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4)
 
 def writeTemp(data, filename="CurrentRun.json"):
     with open(filename, 'w+') as f:
         f.write(json.dumps(data))
-    
-        
 
 def printMeasurement(meas):
-    print "Measurement: ",
+    print("Measurement: ",)
     for key,val in sorted(list(meas.iteritems()), key=lambda item: item[0]!='V'):
-        print "%s is %.03eA; "%(key,val),
-    print "\n"
+        print("%s is %.03eA; "%(key,val),)
+    print("\n")
 
 def checkComplianceBreach(compliances,measurements):
-    offset=.05 # If the measurement is within 5% of the compliance, shutdown.
+    offset=.01 # If the measurement is within 5% of the compliance, shutdown.
     for key,comp in compliances.iteritems():
         trueComp=(1-offset)*float(comp)
         if trueComp<abs(measurements[key]):
             print("Compliance reached, doing a few more test then stopping.")
             return True
-            
+       
 #make sperearte cpmliance field for each input including the keithly
 def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keithley_comp,comp1,comp2,comp3,comp4,email,excelName):
     #keithley_comp #input as amps, but we need it in units of miliamps because that is what we prompted the user for.
@@ -117,7 +113,9 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
         writeTemp({'voltages':voltages[:i+1],'measurements':measurement,'compliances':compliances},filename="excel/%s_%s.json"%(excelName,timestamp)) 
         if checkComplianceBreach(compliances, measurement):
             voltages=voltages[:i+1+lag]
-    
+
+    #powerDown=Thread(target=powerDownPSU, args=(keithley,))
+    #powerDown.start()
     powerDownPSU(keithley=keithley)
     #print("Done.")
     #print("Voltages %s"%voltages)
@@ -136,6 +134,7 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
         
     filename=writeExcel(excelData,excelName)
     print("Wrote to excel file.")
+                
     #MAKE SOME PLOTS
     files=[]
     plots=[('V', 'keithley'),('V', 'I1'),('V', 'I2'),('V', 'I3'),('V', 'I4'),('V', 'leakage')]
@@ -153,6 +152,9 @@ def runDuo(delay,measureTime,samples,holdTime,startV,endV,steps,integration,keit
         
     send_mail(filename,email,files=files)
     print("Sent email.")
+    #print("Waiting for Keithley to power down.")
+    #powerDown.join()
+    #print("Done")
     return voltages,currents
     
 def stopDuo():
@@ -172,8 +174,9 @@ def powerDownPSU(keithley=None, speed=5):
     timeStep=.01 #seccond delay per step
     voltStep=speed*timeStep
     totalSteps=int(abs(voltage/voltStep))
+    print("Poweing down Keithley from %s to 0V."%voltage)
     print("At a rate of %sV/s with delay of %s, there will be %s steps at %sV per step for %s secconds."%(speed,timeStep,totalSteps,voltStep,totalSteps*timeStep))
     voltages=linspace(voltage,0,totalSteps)
     for volt in voltages:
         keithley.set_output(volt)
-        time.sleep(voltStep)
+        time.sleep(timeStep)

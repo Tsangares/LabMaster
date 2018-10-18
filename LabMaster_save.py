@@ -8,7 +8,7 @@ def loadSettings(gui):
         with open(SAVE_FILE, 'r') as f:
             f.seek(0)
             settings=json.loads(f.read())
-        setCVSettings(gui,settings['cv'])
+        #setCVSettings(gui,settings['cv'])
         setDuoSettings(gui,settings['duo'])
         print("Loaded saved configuration.")
     except Exception as e:
