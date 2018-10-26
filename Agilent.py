@@ -1,4 +1,5 @@
 import time, visa
+from Instrument import Instrument
 #_rm=visa.ResourceManager()
 class Agilent4156(object):
 
@@ -187,40 +188,6 @@ class AgilentE4980a(object):
 # Agilent 4155C is a parameter analizer that has 4 voltage outputs and 4 inputs.
 # I am not going to implement varaible voltage.
 # I am only going to implement a constnant (zero) voltage and measuring the current.
-
-class Instrument:
-    def __init__(self):
-        self.inst=None
-
-    def getName(self,inst=None):
-        if inst is None:
-            if self.inst is not None:
-                inst=self.inst
-            else:
-                raise(Exception("Called getName without an Instrument selected."))
-        return str(inst.query('*IDN?')).lower()
-
-
-    def test(self):
-        return "working"
-
-    def connect(self,name):
-        print("always get here")
-        rm=visa.ResourceManager()
-        print("never get here")
-        for device in rm.list_resources():
-            inst=rm.open_resource(device)
-            if name in self.getName(inst):
-                print("Connected to the device named %s"%name)
-                self.inst=inst
-                break
-        if self.inst is None:
-            raise Exception("The device %s was not found."%name)
-
-    def reset(self):
-        self.inst.write("*RST;")
-
-
 class Agilent4155C(Instrument):
     def __init__(self, reset=False,connect=True):
         self.loc=None # Current Page

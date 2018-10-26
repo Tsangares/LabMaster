@@ -1,1 +1,1 @@
-{"email": "wwyatt@ucsc.edu", "filename": "", "startVolt": "", "endVolt": "", "steps": "", "kcomp": "", "holdTime": "", "measDelay": "", "measTime": "", "comp1": "", "comp2": "", "comp3": "", "comp4": "", "state": "Read Voltage"}
+{"email": "wwyatt@ucsc.edu", "filename": "test", "startVolt": "0", "endVolt": "0", "steps": "1", "kcomp": "0", "holdTime": "0", "measDelay": "0", "measTime": "0", "comp1": "0", "comp2": "0", "comp3": "0", "comp4": "0", "state": "Read Voltage"}

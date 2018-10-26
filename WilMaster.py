@@ -35,32 +35,11 @@ class ValueHandler():
         return output
     def dump(self):
         print(self.getData())
-        
-#Gui's in general have a lot of boiler plate code.
-class Gui():
+
+class Saveable():
     def __init__(self):
-        self.processes=[]
-        self.states=[]
-        self.functions=['Read Current', 'Read Voltage']
         self.oracle=ValueHandler()
-        self.app = QApplication([])
-        self.window = QMainWindow()
-        self.toolbar = QToolBar()
 
-        #getWidget is a big function that calls getLayout
-        main=self.getWidget("Read Current", self.getCurrentSetup(), self.initDuo)
-        #self.getWidget("Read Voltage", self.getVoltageSetup())
-        self.buildToolBar(self.toolbar)
-        self.window.addToolBar(self.toolbar)
-        self.window.setCentralWidget(main)
-        self.loadAutosave()
-        self.window.show()
-        self.app.aboutToQuit.connect(self.exit)
-        self.app.exec_()
-
-    def exit(self):
-        self.saveSettings(filename=".settings.tmp.json")
-        
     def saveSettings(self, filename=".settings.json"):
         saveData=json.dumps(self.oracle.getData())
         with open(filename, "w") as f:
@@ -86,7 +65,32 @@ class Gui():
 
     def loadAutosave(self):
         self.loadSettings(filename=".settings.tmp.json")
-            
+        
+#Gui's in general have a lot of boiler plate code.
+class Gui(Saveable):
+    def __init__(self):
+        super(Gui,self).__init__()
+        self.processes=[]
+        self.states=[]
+        self.functions=['Read Current', 'Read Voltage']
+        self.app = QApplication([])
+        self.window = QMainWindow()
+        self.toolbar = QToolBar()
+
+        #getWidget is a big function that calls getLayout
+        main=self.getWidget("Read Current", self.getCurrentSetup(), self.initDuo)
+        #self.getWidget("Read Voltage", self.getVoltageSetup())
+        self.buildToolBar(self.toolbar)
+        self.window.addToolBar(self.toolbar)
+        self.window.setCentralWidget(main)
+        self.loadAutosave()
+        self.window.show()
+        self.app.aboutToQuit.connect(self.exit)
+        self.app.exec_()
+
+    def exit(self):
+        self.saveSettings(filename=".settings.tmp.json")
+          
     def getToolbarButtons(self):
         out=[]
         for child in self.toolbar.children():
@@ -95,14 +99,25 @@ class Gui():
                     if type(c) == QRadioButton:
                         out.append(c)
         return out
-            
+
+        #Toolbar is used to switch between main-widgets/experiments
+    def buildToolBar(self, toolbar):
+        layout = QHBoxLayout()
+        self.oracle.data['state']=QLineEdit()
+        for func in self.functions:
+            btn=QRadioButton(func)
+            btn.clicked.connect(self.storeState)
+            layout.addWidget(btn)
+            layout.setAlignment(Qt.AlignCenter)
+        widget = QWidget()
+        widget.setLayout(layout)
+        toolbar.addWidget(widget)
+        
     def setState(self):
         state=self.oracle.data['state'].text()
         for btn in self.getToolbarButtons():
             if btn.text() == state:
-                print(btn.isChecked())
                 btn.toggle()
-                print(btn.isChecked())
             
     def getState(self):
         for btn in self.getToolbarButtons():
@@ -112,20 +127,6 @@ class Gui():
 
     def storeState(self):
         self.oracle.data['state'].setText(self.getState())
-
-            
-    #Toolbar is used to switch between main-widgets/experiments
-    def buildToolBar(self, toolbar):
-        layout = QHBoxLayout()
-        self.oracle.data['state']=QLineEdit()
-        for func in self.functions:
-            layout.addSpacing(70)
-            btn=QRadioButton(func)
-            btn.clicked.connect(self.storeState)
-            layout.addWidget(btn)
-        widget = QWidget()
-        widget.setLayout(layout)
-        toolbar.addWidget(widget)
 
     #Converts a dict of <name,key> objects to a form.
     #The `name` is a human readable descriptior,
@@ -140,6 +141,8 @@ class Gui():
                 layout.addRow(QLabel(opt['name']),self.oracle.data[key])
             else:
                 layout.addRow(QLabel(opt['name']),self.oracle.getLineEdit(key))
+        layout.setContentsMargins(20,20,20,20)
+        layout.setSpacing(5)
         return layout
 
     #Generates the fields based on options and sets up the standard buttons.
@@ -149,7 +152,7 @@ class Gui():
 
         #Setup buttons
         startBtn=QPushButton('Start')
-        powerBtn=QPushButton('Pnower Down')
+        powerBtn=QPushButton('Power Down')
         saveBtn=QPushButton('Save Configuration')
         loadBtn=QPushButton('Load Autosave')
         if action != None: startBtn.clicked.connect(action)
@@ -205,6 +208,9 @@ class Gui():
     
     #Connects gui to the experiments code.
     def initDuo(self):
+        #p=Thread(target=self.initView)
+        #p.start()
+        #self.processes.append(p)
         oracle=self.oracle.getData()
         args=(float(oracle['measDelay']),
                float(oracle['measTime']),
@@ -224,5 +230,9 @@ class Gui():
         p=Thread(target=runDuo, args=args)
         p.start()
         self.processes.append(p)
+    def initView(self):
+        widget=QWidget()
+        widget.show()
+        
 gui=Gui()
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import visa
-
+from Instrument import Instrument 
 
 class PowerSupplyFactory(object):
     """
