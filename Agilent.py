@@ -207,6 +207,7 @@ class Instrument:
     def connect(self,name):
         print("always get here")
         rm=visa.ResourceManager()
+        print(rm.list_resources())
         print("never get here")
         for device in rm.list_resources():
             inst=rm.open_resource(device)

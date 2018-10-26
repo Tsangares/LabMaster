@@ -20,7 +20,8 @@ import matplotlib
 import xlsxwriter
 
 from Agilent import AgilentE4980a, Agilent4156
-from PowerSupply import PowerSupplyFactory
+#from PowerSupply import PowerSupplyFactory
+from PowerSupply import *
 from emailbot import send_mail
 
 matplotlib.use("TkAgg")

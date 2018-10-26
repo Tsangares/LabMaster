@@ -35,7 +35,7 @@ class PowerSupplyFactory(object):
 
 class Keithley2657a(PowerSupplyFactory):
 
-    def __init__(self, gpib_address=24):
+    def __init__(self, gpib_address=1):
         """
         Initializer for Keithley power supply
         Checks to make sure that the power supply is not on
@@ -47,11 +47,12 @@ class Keithley2657a(PowerSupplyFactory):
         resource_manager = visa.ResourceManager()
 
         # Temporarily set the power supply to point at the first address
-        self.supply = resource_manager.\
-            open_resource(resource_manager.list_resources()[0])
+        self.supply = resource_manager.open_resource(resource_manager.list_resources()[0])
 
         # Search through intrument cluster for the gpib address
         # TODO Implement the same thing using a filter or reduce
+        '''
+        #Old Way
         for address in resource_manager.list_resources():
             print("Searching for Keithley @" + str(gpib_address))
             if str(gpib_address) in str(address):
@@ -59,11 +60,17 @@ class Keithley2657a(PowerSupplyFactory):
                 self.supply = resource_manager.open_resource(address)
             else:
                 print("Keithley not found; Please check GPIB Address")
-
-        print("Initializing Keithley 2657A")
+        '''
+        
+        #print("Initializing Keithley 2657A")
         # Verify sanity of device
-        print(self.supply.query("*IDN?"))
-
+        
+        for res in resource_manager.list_resources():
+            resource=resource_manager.open_resource(res)
+            name=resource.query("*IDN?").lower()
+            if "keithley".lower() in name and "2657a".lower() in name:
+                self.supply = resource
+             
         # Reset state of device
         self.supply.write("setup.recall(1)")
 
@@ -160,7 +167,7 @@ class Keithley2400(PowerSupplyFactory):
     Object which control the Keithley 2400 series high voltage supplies
     """
 
-    def __init__(self, gpib_address=22):
+    def __init__(self, gpib_address=1):
         """
         Initializer for keithley power supply
         Checks to make sure that the power supply is not on
