@@ -2,6 +2,8 @@
 
 import time,threading
 import platform as platform
+import json
+import os.path
 
 from Agilent import AgilentE4980a, Agilent4156
 from PowerSupply import PowerSupplyFactory
@@ -11,140 +13,12 @@ from matplotlib import pyplot as plt
 
 from LabMaster_save import *
 from LabMaster_duo import *
+from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
-from multiprocessing import Process
 from multiprocessing import Process
 from threading import Thread
 
-# These are helper functions that are common GUI objects.
-# makeEntry is a text label and a string input
-def makeEntry(fig,title,var,row):
-    obj = Label(fig, text=title)
-    obj.grid(row=row, column=1)
-    if var is None: var=StringVar(root, "0")
-    obj = Entry(fig, textvariable=var)
-    obj.grid(row=row, column=2)
-
-# makeUnitEntry is a Label, Entry box, then a another label showing the specified untis
-def makeUnitEntry(fig,title,var,row,unit):
-    makeEntry(fig,title,var,row)
-    obj = Label(fig, text=unit)
-    obj.grid(row=row, column=3)
-
-# makeUnitsEntry is the same at make Unit Entry but allows custom units.
-def makeUnitsEntry(fig,title,var,row,units,scale):
-    makeEntry(fig,title,var,row)
-    scale.set(list(units)[0])
-    obj = OptionMenu(fig, scale, *units)
-    obj.grid(row=row, column=3)
-
-# Since most experiments use a common configuration setup, here is an object containing them. Any other experiment specific runs should be specified outside of this object.
-class Settings:
-    def __init__(self,notebook):
-        self.start_volt=StringVar(root,"0")
-        self.end_volt = StringVar(root,"100")
-        self.step_volt = StringVar(root,"5")
-        self.hold_time = StringVar(root,"1")
-        self.compliance = StringVar(root,"1") 
-        self.recipients = StringVar(root,"adapbot@gmail.com")   
-        self.compliance_scale = StringVar()
-        self.source_choice = StringVar()
-        self.figure=ttk.Frame(notebook)
-
-    def buildLabels(self, start=True, end=True, step=True, hold=True, compliance=True):
-        if start: makeUnitEntry(self.figure,"Start Volt", self.start_volt, 1, "V")
-        if end:   makeUnitEntry(self.figure,"End Volt",   self.end_volt,   2, "V")
-        if step:  makeUnitEntry(self.figure,"Step Volt",  self.step_volt,  3, "V")
-        if hold:  makeUnitEntry(self.figure,"Hold Time",  self.hold_time,  4, "s")
-        if compliance: makeUnitsEntry(self.figure,"Compliance", self.compliance, 5, {'mA', 'uA', 'nA'}, self.compliance_scale)
-
-# This is the mess of a GUI        
-class GuiPart:
-    def __init__(self):
-        print("Interface Generating")
-        n = ttk.Notebook(root,width=800)
-        n.grid(row=0, column=0, columnspan=100, rowspan=100, sticky='NESW')
-        print("Checkpoint c")
-        #Setting the settings for duo
-        self.duo = Settings(n)
-        self.duo.filename=StringVar(root, "happy")
-        self.duo.steps=StringVar(root, "1")
-        self.duo.delay=StringVar(root, "0")
-        self.duo.measureTime=StringVar(root, "0")
-        self.duo.samples=StringVar(root, "10")
-        self.duo.integration=StringVar(root, "None")
-        self.duo.keithley_compliance=StringVar(root, "0")
-        self.duo.agilent_compliance1=StringVar(root, "0")
-        self.duo.agilent_compliance2=StringVar(root, "0")
-        self.duo.agilent_compliance3=StringVar(root, "0")
-        self.duo.agilent_compliance4=StringVar(root, "0")
-
-        #Build Gui components
-        self.f1=self.duo.figure
-        self.duo.buildLabels(compliance=False,hold=False,step=False)
-        makeEntry(self.duo.figure, "Email",self.duo.recipients,3)
-        makeEntry(self.duo.figure, "Filename (omit .xlsx)",self.duo.filename,4)
-        makeUnitEntry(self.duo.figure, "Number of Steps",self.duo.steps,5,"# of Steps")
-        makeUnitEntry(self.duo.figure, "Measurement Delay",self.duo.delay,6,"secconds")
-        makeUnitEntry(self.duo.figure, "Agilent Measuring Time",self.duo.measureTime,7,"secconds")
-        makeUnitEntry(self.duo.figure, "Agilent Hold Time",self.duo.hold_time,8,"secconds")
-        #makeUnitEntry(self.duo.figure, "Agilent Samples",self.duo.samples,6,"# of samples")
-        makeUnitEntry(self.duo.figure, "Keithley Compliance",self.duo.keithley_compliance,9, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 1",self.duo.agilent_compliance1,10, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 2",self.duo.agilent_compliance2,11, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 3",self.duo.agilent_compliance3,12, "mA")
-        makeUnitEntry(self.duo.figure, "Agilent Comp. Chan 4",self.duo.agilent_compliance4,13, "mA")
-        Button(self.duo.figure, text="Save Configuation", command=self.saveSettings).grid(row=18,column=2)
-        Button(self.duo.figure, text="Start", command=self.prepDuo).grid(row=16,column=2)
-        Button(self.duo.figure, text="Stop", command=stopDuo).grid(row=17,column=2)
-        
-        
-        n.add(self.duo.figure, text="Duo IV")
-        print("Interface Generated")
-        loadSettings(self)
-     
-    def quit(self):
-        print("placing order")
-        self.stop.put("random")
-        self.stop.put("another random value")
-
-    def prepDuo(self):
-        obj=self.duo
-        runDuo(float(obj.delay.get()),
-                      float(obj.measureTime.get()),
-                      float(obj.samples.get()),
-                      float(obj.hold_time.get()),
-                      float(obj.start_volt.get()),
-                      float(obj.end_volt.get()),
-                      int(obj.steps.get()),
-                      obj.integration.get(),
-                      float(obj.keithley_compliance.get())/1000,
-                      float(obj.agilent_compliance1.get())/1000,
-                      float(obj.agilent_compliance2.get())/1000,
-                      float(obj.agilent_compliance3.get())/1000,
-                      float(obj.agilent_compliance4.get())/1000,
-                      obj.recipients.get(),
-                      obj.filename.get())
-
-    def saveSettings(self):
-        settings={
-            'duo': getDuoSettings(self),
-            'cv': getCVSettings(self),
-            'iv': None
-        }       
-        try:
-            with open(SAVE_FILE, 'w+') as f:
-                f.write(json.dumps(settings))
-                print('Settings saved in the file %s'%SAVE_FILE)
-        except Exception as e:
-            print(e)
-
-
-#root = Tk()
-#root.geometry('800x800')
-#root.title('LabMaster')
-#GUI=GuiPart()
-
+#Value Handler simplifies getting the data from the input fields on the gui.
 class ValueHandler():
     def __init__(self):
         self.data={}
@@ -162,41 +36,174 @@ class ValueHandler():
     def dump(self):
         print(self.getData())
         
-class Gui:
+#Gui's in general have a lot of boiler plate code.
+class Gui():
     def __init__(self):
         self.processes=[]
-        self.app = QApplication([])
-        self.window = QWidget()
+        self.states=[]
+        self.functions=['Read Current', 'Read Voltage']
         self.oracle=ValueHandler()
-        self.layout = QFormLayout()
-        self.buildDuo(self.oracle)
-        self.window.setLayout(self.layout)
+        self.app = QApplication([])
+        self.window = QMainWindow()
+        self.toolbar = QToolBar()
+
+        #getWidget is a big function that calls getLayout
+        main=self.getWidget("Read Current", self.getCurrentSetup(), self.initDuo)
+        #self.getWidget("Read Voltage", self.getVoltageSetup())
+        self.buildToolBar(self.toolbar)
+        self.window.addToolBar(self.toolbar)
+        self.window.setCentralWidget(main)
+        self.loadAutosave()
         self.window.show()
+        self.app.aboutToQuit.connect(self.exit)
         self.app.exec_()
+
+    def exit(self):
+        self.saveSettings(filename=".settings.tmp.json")
         
-    def buildDuo(self,oracle):
-        #build data inputs
-        self.layout.addRow(QLabel('Email'),      oracle.getLineEdit('email'))
-        self.layout.addRow(QLabel('Filename'),   oracle.getLineEdit('filename'))
-        self.layout.addRow(QLabel('Start Volt'), oracle.getSpinBox('startVolt'))
-        self.layout.addRow(QLabel('End Volt'),   oracle.getSpinBox('endVolt'))
-        self.layout.addRow(QLabel('Steps'),      oracle.getSpinBox('steps'))
-        self.layout.addRow(QLabel('Keithley Compliance'),    oracle.getSpinBox('kcomp'))
-        self.layout.addRow(QLabel('Agilent Hold Time'),      oracle.getSpinBox('holdTime'))
-        self.layout.addRow(QLabel('Agilent Measurement Delay'),  oracle.getSpinBox('measDelay'))
-        self.layout.addRow(QLabel('Agilent Measurement Time'),   oracle.getSpinBox('measTime'))
-        for i in range(1,5):
-            self.layout.addRow(QLabel('Agilent Compliance for Chan %d'%i),oracle.getSpinBox('comp%d'%i))
+    def saveSettings(self, filename=".settings.json"):
+        saveData=json.dumps(self.oracle.getData())
+        with open(filename, "w") as f:
+            f.write(saveData)
 
-        #build buttons
+    def loadSettings(self,filename=".settings.json"):
+        data=None
+        try:
+            with open(filename) as f:
+                data=json.loads(f.read())
+                f.close()
+            if data != None:
+                for key,field in self.oracle.data.items():
+                    try:
+                        self.oracle.data[key].setText(data[key])
+                    except KeyError:
+                        print("Nothing saved for %s"%key)
+                self.setState()
+        except json.decoder.JSONDecodeError:
+            print("Save file is corrupted, please delete %s"%filename)            
+        except FileNotFoundError:
+            print("No settings file.")
+
+    def loadAutosave(self):
+        self.loadSettings(filename=".settings.tmp.json")
+            
+    def getToolbarButtons(self):
+        out=[]
+        for child in self.toolbar.children():
+            if type(child) == QWidget:
+                for c in child.children():
+                    if type(c) == QRadioButton:
+                        out.append(c)
+        return out
+            
+    def setState(self):
+        state=self.oracle.data['state'].text()
+        for btn in self.getToolbarButtons():
+            if btn.text() == state:
+                print(btn.isChecked())
+                btn.toggle()
+                print(btn.isChecked())
+            
+    def getState(self):
+        for btn in self.getToolbarButtons():
+            if btn.isChecked():
+                return btn.text()
+        return None
+
+    def storeState(self):
+        self.oracle.data['state'].setText(self.getState())
+
+            
+    #Toolbar is used to switch between main-widgets/experiments
+    def buildToolBar(self, toolbar):
+        layout = QHBoxLayout()
+        self.oracle.data['state']=QLineEdit()
+        for func in self.functions:
+            layout.addSpacing(70)
+            btn=QRadioButton(func)
+            btn.clicked.connect(self.storeState)
+            layout.addWidget(btn)
+        widget = QWidget()
+        widget.setLayout(layout)
+        toolbar.addWidget(widget)
+
+    #Converts a dict of <name,key> objects to a form.
+    #The `name` is a human readable descriptior,
+    # and `key` pulls options from the gui to give to the experiment's code
+    def getLayout(self,options):
+        layout = QFormLayout()
+        keys=[key for key,item in self.oracle.data.items()]
+        for opt in options:
+            key=opt['key']
+            if key in keys:
+                print("Handling a duplicate key, %s"%key)
+                layout.addRow(QLabel(opt['name']),self.oracle.data[key])
+            else:
+                layout.addRow(QLabel(opt['name']),self.oracle.getLineEdit(key))
+        return layout
+
+    #Generates the fields based on options and sets up the standard buttons.
+    def getWidget(self,name,options,action=None):
+        #Get options
+        layout=self.getLayout(options)
+
+        #Setup buttons
         startBtn=QPushButton('Start')
-        powerBtn=QPushButton('Power Down')
+        powerBtn=QPushButton('Pnower Down')
         saveBtn=QPushButton('Save Configuration')
-        startBtn.clicked.connect(self.initDuo)
-        self.layout.addRow(startBtn)
-        self.layout.addRow(powerBtn)
-        self.layout.addRow(saveBtn)
+        loadBtn=QPushButton('Load Autosave')
+        if action != None: startBtn.clicked.connect(action)
+        saveBtn.clicked.connect(lambda: self.saveSettings())
+        loadBtn.clicked.connect(self.loadAutosave)
+        layout.addRow(startBtn)
+        layout.addRow(powerBtn)
+        #layout.addRow(saveBtn)
+        #layout.addRow(loadBtn)
 
+        #Create widget
+        widget = QWidget()
+        widget.setLayout(layout)
+        widget.setAccessibleName(name)
+        return widget
+
+    #Sourcing voltage to zero and reading current on the Agilent
+    #Keithly is used to source voltage set by these options
+    def getCurrentSetup(self):
+        options=[
+            {'name': 'Email', 'key': 'email'},
+            {'name': 'Filename', 'key': 'filename'},
+            {'name': 'Start Volt', 'key': 'startVolt'},
+            {'name': 'End Volt',   'key': 'endVolt'},
+            {'name': 'Steps',      'key': 'steps'},
+            {'name': 'Keithley Compliance',    'key': 'kcomp'},
+            {'name': 'Agilent Hold Time',      'key': 'holdTime'},
+            {'name': 'Agilent Measurement Delay',  'key': 'measDelay'},
+            {'name': 'Agilent Measurement Time',   'key': 'measTime'},
+        ]
+        for i in range(1,5):
+            options.append({'name': 'Agilent Compliance for Chan %d'%i, 'key': 'comp%d'%i})
+        return options
+
+    #Sourcing current to zero and reading voltage on the Agilent
+    #Keithly is used to source voltage configured by these options
+    def getVoltageSetup(self):
+        options=[
+            {'name': 'Email', 'key': 'email'},
+            {'name': 'Filename', 'key': 'filename'},
+            {'name': 'Start Volt', 'key': 'startVolt'},
+            {'name': 'End Volt',   'key': 'endVolt'},
+            {'name': 'Steps',      'key': 'steps'},
+            {'name': 'Keithley Compliance',    'key': 'kcomp'},
+            {'name': 'Agilent Hold Time',      'key': 'holdTime'},
+            {'name': 'Agilent Measurement Delay',  'key': 'measDelay'},
+            {'name': 'Agilent Measurement Time',   'key': 'measTime'},
+        ]
+        for i in range(1,5):
+            options.append({'name': 'Agilent Compliance for Chan %d'%i, 'key': 'comp%d'%i})
+        return options
+
+    
+    #Connects gui to the experiments code.
     def initDuo(self):
         oracle=self.oracle.getData()
         args=(float(oracle['measDelay']),
@@ -217,5 +224,5 @@ class Gui:
         p=Thread(target=runDuo, args=args)
         p.start()
         self.processes.append(p)
-
 gui=Gui()
+

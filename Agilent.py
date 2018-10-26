@@ -353,6 +353,34 @@ class Agilent4155C(Instrument):
             self.outputs.append(outputName)
         self.write(":PAGE:GLIS:LIST")
 
+    # Set a channel to a constant current
+    # We want it at zero to measure voltage
+    def setCurrent(self, channel, current, compliance):
+        if int(channel)<0 or int(channel)>5:
+            raise Exception("Channel is outside bounds. [1-4]; Given %s"%channel)
+
+        #Configuring the channel
+        self.setPrefix(":PAGE:CHAN:SMU%s"%channel) #Select SMU channel
+        self.prefixWrite("MODE I") #Set to source voltage
+        self.prefixWrite("FUNC CONS") #Set to constant
+        self.prefixWrite("STAN OFF") #Disable standby
+
+        #Configuring the measurement
+        self.setPrefix(":PAGE:MEAS:%s:CONS:SMU%s"%(self.mode,channel))
+        self.prefixWrite("SOURce %s"%current) #in 100mA
+        self.prefixWrite("COMPliance %.10f"%compliance)
+        print("Set voltage to %sV and compliance to %.10fA on Agilent's channel %s."%(voltage,compliance,channel))
+
+        #Add to variable lists
+        inputName="I%s"%channel
+        outputName="V%s"%channel
+        if inputName not in self.inputs:
+            self.inputs.append(inputName)
+        if outputName not in self.outputs:
+            self.outputs.append(outputName)
+        self.write(":PAGE:GLIS:LIST")
+
+
     # Sets output data to ascii instead of binary
     def setOutputReadable(self):
         self.write(":FORM:BORD NORM; DATA ASC;")
@@ -373,6 +401,18 @@ class Agilent4155C(Instrument):
         self.prefixWrite("LIST '@TIME'%s"%params)
 
     def getCurrent(self, samples=None, duration=None):
+        if samples is not None: self.setSampleSize(samples)
+        if duration is not None: self.setSampleDuration(duration)
+        self.setOutputReadable()
+        self.prepareMeasurement()
+        self.run()
+        try:
+            self.query("*OPC?")
+        except visa.VisaIOError:
+            print("Agilent timed out when asked if operation is complete. Lower meas. time to remove this warning.")
+        return self.getResults()
+
+    def getVoltage(self, samples=None, duration=None):
         if samples is not None: self.setSampleSize(samples)
         if duration is not None: self.setSampleDuration(duration)
         self.setOutputReadable()
