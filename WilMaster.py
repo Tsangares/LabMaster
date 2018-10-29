@@ -228,8 +228,12 @@ class Gui(Saveable):
                oracle['email'],
                oracle['filename'])
         p=Thread(target=runDuo, args=args)
-        p.start()
+        #p.start()
         self.processes.append(p)
+        print("Thread created and stored; not started", self.processes)
+        widget=QWidget()
+        widget.show()
+
     def initView(self):
         widget=QWidget()
         widget.show()

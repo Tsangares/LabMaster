@@ -1,0 +1,15 @@
+Calibration:
+ runs for each preamp. Reads voltage and infers current from (V-V_0)/R = i
+
+Experiment:
+ Keithley set current.
+ for i in pins/4:
+  Arduino is used like I2C to select channel.
+  Once set, Measures voltage
+  Uses constants to infer current
+  
+
+
+Possibly make a test file actually.
+Tests:
+ Check to see if the variable outputs from the aglient are correct.
