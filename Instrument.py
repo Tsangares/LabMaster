@@ -17,19 +17,22 @@ class Instrument:
     def test(self):
         return "working"
 
-    def connect(self,name,model=None):
-        print("always get here")
+    #Args is a list of args
+    def connect(self,*args):
         rm=visa.ResourceManager()
-        print("never get here")
         for device in rm.list_resources():
-            inst=rm.open_resource(device)
-            idn=self.getName(inst).lower()
-            if name in idn and (model is None or model in idn):
-                print("Connected to the device named %s"%name)
-                self.inst=inst
-                return inst
+            self.inst=rm.open_resource(device)
+            idn=self.getName(self.inst).lower()
+            for arg in args:
+                if not arg.lower() in idn:
+                    self.inst=None
+                    break
+            if self.inst is not None: break;
         if self.inst is None:
-            raise Exception("The device %s was not found."%name)
+            raise Exception("The device %s was not found."%' '.join(args))
+        else:
+            print("Connected to %s"%' '.join(args))
+            return self.inst
 
     def reset(self):
         self.inst.write("*RST;")

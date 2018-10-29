@@ -3,7 +3,7 @@
 import visa
 from Instrument import Instrument 
 
-class PowerSupplyFactory(object):
+class PowerSupplyFactory(Instrument):
     """
     Abstract Class for creating power supply interfaces.
     Call the static method PowerSupply.factory("insert_my_type")
@@ -36,6 +36,7 @@ class PowerSupplyFactory(object):
 class Keithley2657a(PowerSupplyFactory):
 
     def __init__(self, gpib_address=24):
+        #super(Keithley2657a,self).__init__()
         """
         Initializer for Keithley power supply
         Checks to make sure that the power supply is not on
@@ -43,26 +44,8 @@ class Keithley2657a(PowerSupplyFactory):
         """
 
         assert (gpib_address >= 0), "Please enter a valid GPIB address"
-
-        resource_manager = visa.ResourceManager()
-
-        # Temporarily set the power supply to point at the first address
-        self.supply = resource_manager.\
-            open_resource(resource_manager.list_resources()[0])
-
-        # Search through intrument cluster for the gpib address
-        # TODO Implement the same thing using a filter or reduce
-        for address in resource_manager.list_resources():
-            print("Searching for Keithley @" + str(gpib_address))
-            if str(gpib_address) in str(address):
-                print("Keithley Found")
-                self.supply = resource_manager.open_resource(address)
-            else:
-                print("Keithley not found; Please check GPIB Address")
-
-        print("Initializing Keithley 2657A")
-        # Verify sanity of device
-        print(self.supply.query("*IDN?"))
+        
+        self.supply=self.connect("Keithley","2657a")
 
         # Reset state of device
         self.supply.write("setup.recall(1)")

@@ -190,16 +190,14 @@ class AgilentE4980a(object):
 # I am only going to implement a constnant (zero) voltage and measuring the current.
 class Agilent4155C(Instrument):
     def __init__(self, reset=False,connect=True):
+        super(Agilent4155C,self).__init__()
         self.loc=None # Current Page
         self.mode=None # Sampling or Sweeping
         self.prefix=None # More speci`fic than a page, current selected field
         self.inputs=[]
         self.outputs=[]
-        if connect is True: self.connect()
+        if connect is True: self.connect("4155c")
         if reset is True: self.reset()
-
-    def connect(self):
-        return Instrument.connect(self,"4155c")
 
     # query() and write() are helper functions
     # The intention is just to shorten and abstract form the instrument object.
@@ -336,7 +334,11 @@ class Agilent4155C(Instrument):
         self.setPrefix(":PAGE:MEAS:%s:CONS:SMU%s"%(self.mode,channel))
         self.prefixWrite("SOURce %s"%current) #in 100mA
         self.prefixWrite("COMPliance %.10f"%compliance)
-        print("Set voltage to %sV and compliance to %.10fA on Agilent's channel %s."%(voltage,compliance,channel))
+        if abs(compliance) > 100:
+            print("Compliance too big, must be below 100 V, above -100V")
+        else:
+            self.prefixWrite("COMPliance %.10f"%compliance)
+        print("Set current to %sA and compliance to %.10fV on Agilent's channel %s."%(current,compliance,channel))
 
         #Add to variable lists
         inputName="I%s"%channel
@@ -367,7 +369,7 @@ class Agilent4155C(Instrument):
             params+=", '%s'"%output
         self.prefixWrite("LIST '@TIME'%s"%params)
 
-    def getCurrent(self, samples=None, duration=None):
+    def read(self, samples=None, duration=None):
         if samples is not None: self.setSampleSize(samples)
         if duration is not None: self.setSampleDuration(duration)
         self.setOutputReadable()
@@ -378,17 +380,10 @@ class Agilent4155C(Instrument):
         except visa.VisaIOError:
             print("Agilent timed out when asked if operation is complete. Lower meas. time to remove this warning.")
         return self.getResults()
+    
+    def getCurrent(self, samples=None, duration=None):
+        return self.read(samples,duration)
 
     def getVoltage(self, samples=None, duration=None):
-        if samples is not None: self.setSampleSize(samples)
-        if duration is not None: self.setSampleDuration(duration)
-        self.setOutputReadable()
-        self.prepareMeasurement()
-        self.run()
-        try:
-            self.query("*OPC?")
-        except visa.VisaIOError:
-            print("Agilent timed out when asked if operation is complete. Lower meas. time to remove this warning.")
-        return self.getResults()
-
+        return self.read(samples,duration)
 
