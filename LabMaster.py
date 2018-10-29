@@ -145,16 +145,23 @@ def GetCV(params, sourcemeter, dataout, stopqueue):
     c = []
     keithley = 0
     agilent = 0
+
+    print("I am here")
     
     if debug:
         pass
     else:
+        print("I am in the else")
         if sourcemeter is 0:
+            print("source is 0")
             keithley = Keithley2400()
         else:
+            print("finding 2657")
             keithley = Keithley2657a()
     
     last_volt = 0
+
+    print("I am here 2")
     
     (start_volt, end_volt, step_volt, delay_time, compliance,
      frequencies, level, function, impedance, int_time) = params
@@ -170,6 +177,8 @@ def GetCV(params, sourcemeter, dataout, stopqueue):
         agilent.configure_measurement(function)
         agilent.configure_aperture(int_time)
     badCount = 0
+
+    print("I am here 3")
     
     scaled = False
     

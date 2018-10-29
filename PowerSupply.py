@@ -64,10 +64,11 @@ class Keithley2657a(PowerSupplyFactory):
         
         #print("Initializing Keithley 2657A")
         # Verify sanity of device
-        
+        print("finding power blablabal")
         for res in resource_manager.list_resources():
             resource=resource_manager.open_resource(res)
             name=resource.query("*IDN?").lower()
+            print("finding power")
             if "keithley".lower() in name and "2657a".lower() in name:
                 self.supply = resource
              
