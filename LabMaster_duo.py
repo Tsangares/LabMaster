@@ -3,7 +3,6 @@ from PowerSupply import *
 from numpy import linspace
 import time
 from time import sleep
-import logging
 import matplotlib.pyplot as plt
 from threading import Thread
 from LabMaster_plotting import *

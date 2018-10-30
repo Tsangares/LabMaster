@@ -1,0 +1,937 @@
+Welcome to fish, the friendly interactive shell
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 213, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 205, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 29, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 72, in __init__
+    self.onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+RuntimeError: super-class __init__() of type MainMenu was never called
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 213, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 205, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 29, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 72, in __init__
+    self.onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+RuntimeError: super-class __init__() of type MainMenu was never called
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+Main Menu
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 73, in __init__
+    self.onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+RuntimeError: super-class __init__() of type MainMenu was never called
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+Stateful
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 73, in __init__
+    self.onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+RuntimeError: super-class __init__() of type MainMenu was never called
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+Stateful
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 73, in __init__
+    self.onLoad.connect(
+RuntimeError: super-class __init__() of type MainMenu was never called
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+Stateful
+QObject::connect: No such signal MainMenu::onLoad(QString)
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 74, in __init__
+    lambda: self.setState(self.getValue('state').text())
+TypeError: connect() failed between Saveable.onLoad[str] and unislot()
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+Stateful
+QObject::connect: No such signal MainMenu::onLoad(QString)
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 74, in __init__
+    lambda a: self.setState(self.getValue('state').text())
+TypeError: connect() failed between Saveable.onLoad[str] and unislot()
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+Stateful
+QObject::connect: No such signal MainMenu::onLoad(QString)
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 73, in __init__
+    self.onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+TypeError: connect() failed between Saveable.onLoad[str] and unislot()
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+Stateful
+QObject::connect: No such signal MainMenu::onLoad(QString)
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 73, in __init__
+    super(Stateful,self).onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+TypeError: connect() failed between Saveable.onLoad[str] and unislot()
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+QObject::connect: No such signal MainMenu::onLoad(QString)
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 71, in __init__
+    super(Stateful,self).onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+TypeError: connect() failed between Saveable.onLoad[str] and unislot()
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+QObject::connect: No such signal MainMenu::onLoad(QString)
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 68, in __init__
+    super(Stateful,self).onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+TypeError: connect() failed between Saveable.onLoad[str] and unislot()
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+QObject::connect: No such signal MainMenu::onLoad(QString)
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 68, in __init__
+    self.onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+TypeError: connect() failed between Saveable.onLoad[str] and unislot()
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 68, in __init__
+    onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+NameError: name 'onLoad' is not defined
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 68, in __init__
+    Saveable.onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+AttributeError: 'PyQt5.QtCore.pyqtSignal' object has no attribute 'connect'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Main Menu
+QObject::connect: No such signal MainMenu::onLoad(QString)
+Traceback (most recent call last):
+  File "WilMaster.py", line 214, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 206, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 68, in __init__
+    self.onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+TypeError: connect() failed between Saveable.onLoad[str] and unislot()
+wil@taxi ~/D/b/LabMaster> TypeError: connect() failed between Saveable.onLoad[str] and unislot()
+wil@taxi ~/D/b/LabMaster> 
+wil@taxi ~/D/b/LabMaster> TypeError: connect() failed between Saveable.onLoad[str] and unislot()
+fish: Unknown command 'TypeError:'
+wil@taxi ~/D/b/LabMaster> wil@taxi ~/D/b/LabMaster> 
+fish: Expected a string, but instead found end of the statement
+wil@taxi ~/D/b/LabMaster> 
+                          ^
+wil@taxi ~/D/b/LabMaster> wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+fish: Unknown command 'wil@taxi'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 213, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 205, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 34, in __init__
+    self.window.addToolBar(self.toolbar)
+AttributeError: 'builtin_function_or_method' object has no attribute 'addToolBar'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 213, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 205, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 34, in __init__
+    self.window.addToolBar(self.toolbar)
+AttributeError: 'builtin_function_or_method' object has no attribute 'addToolBar'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 68, in <lambda>
+    self.onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+  File "WilMaster.py", line 42, in setState
+    return super(Gui,self).setState(state)
+TypeError: super(type, obj): obj must be an instance or subtype of type
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 77, in updateFields
+    layout=self.window.centralWidget().layout()
+AttributeError: 'builtin_function_or_method' object has no attribute 'centralWidget'
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 82, in updateFields
+    for child in self.window.centralWidget().children():
+AttributeError: 'builtin_function_or_method' object has no attribute 'centralWidget'
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 166, in initDuo
+    self.window.statusBar().showMessage("Started Duo!", 2000)
+AttributeError: 'builtin_function_or_method' object has no attribute 'statusBar'
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 210, in exit
+    self.saveSettings(filename=".settings.tmp.json")
+AttributeError: 'Gui' object has no attribute 'saveSettings'
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 210, in exit
+    self.saveSettings(filename=".settings.tmp.json")
+AttributeError: 'Gui' object has no attribute 'saveSettings'
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Nothing saved for email
+Nothing saved for filename
+Nothing saved for startVolt
+Nothing saved for endVolt
+Nothing saved for steps
+Nothing saved for kcomp
+Nothing saved for holdTime
+Nothing saved for measDelay
+Nothing saved for measTime
+Nothing saved for comp1
+Nothing saved for comp2
+Nothing saved for comp3
+Nothing saved for comp4
+Nothing saved for state
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Nothing saved for state
+Nothing saved for email
+Nothing saved for filename
+Nothing saved for startVolt
+Nothing saved for endVolt
+Nothing saved for steps
+Nothing saved for kcomp
+Nothing saved for holdTime
+Nothing saved for measDelay
+Nothing saved for measTime
+Nothing saved for comp1
+Nothing saved for comp2
+Nothing saved for comp3
+Nothing saved for comp4
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 199, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 193, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__(states)
+TypeError: __init__() takes 1 positional argument but 2 were given
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 27, in <module>
+    class MainMenu(MenuWindow):
+NameError: name 'MenuWindow' is not defined
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 199, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 193, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__(states)
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 92, in __init__
+    super(MainWindow,self).__init__()
+NameError: name 'MainWindow' is not defined
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 199, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 193, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__(states)
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 95, in __init__
+    self.buildToolBar()
+TypeError: buildToolBar() missing 1 required positional argument: 'toolbar'
+wil@taxi ~/D/b/LabMaster> 
+wil@taxi ~/D/b/LabMaster> 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 115, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 109, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__(states)
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 95, in __init__
+    self.buildToolBar()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 130, in buildToolBar
+    self.toolbar().addWidget(widget)
+AttributeError: 'MainMenu' object has no attribute 'toolbar'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 115, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 109, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__(states)
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 96, in __init__
+    self.buildToolBar()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 133, in buildToolBar
+    self.toolbar().addWidget(widget)
+TypeError: 'QToolBar' object is not callable
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 115, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 109, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__(states)
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 96, in __init__
+    self.buildToolBar()
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 133, in buildToolBar
+    self.toolbar().addWidget(widget)
+AttributeError: 'function' object has no attribute 'addWidget'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 115, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 109, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 30, in __init__
+    super(MainMenu,self).__init__(states)
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 95, in __init__
+    self.addToolBar()
+TypeError: arguments did not match any overloaded call:
+  addToolBar(self, Qt.ToolBarArea, QToolBar): not enough arguments
+  addToolBar(self, QToolBar): not enough arguments
+  addToolBar(self, str): not enough arguments
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 115, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 109, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 32, in __init__
+    self.getWidget(self.getCurrentSetup(), action=self.initDuo)
+TypeError: getWidget() missing 1 required positional argument: 'options'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 71, in <lambda>
+    self.onLoad.connect(lambda: self.setState(self.getValue('state').text()))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 101, in setState
+    return super(MainMenu,self).setState(state)
+NameError: name 'MainMenu' is not defined
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 76, in initDuo
+    args=(float(oracle['measDelay']),
+ValueError: could not convert string to float:
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+
+Traceback (most recent call last):
+  File "WilMaster.py", line 77, in initDuo
+    args=(float(oracle['measDelay']),
+ValueError: could not convert string to float:
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 23, in <module>
+    from Core import MenuWindow
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 175
+    if child not in self.centralWidget().children():
+                                                   ^
+SyntaxError: invalid syntax
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 170, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 174, in stateWidgetHandle
+    if child not in self.centralWidget().children():
+UnboundLocalError: local variable 'child' referenced before assignment
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 170, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 175, in stateWidgetHandle
+    layout.addRow(widget)
+NameError: name 'layout' is not defined
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 170, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 174, in stateWidgetHandle
+    if widget.accessibleName() == state:
+RuntimeError: wrapped C/C++ object of type QPushButton has been deleted
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 172, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 176, in stateWidgetHandle
+    if widget.accessibleName() == state:
+RuntimeError: wrapped C/C++ object of type QPushButton has been deleted
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+<PyQt5.QtWidgets.QPushButton object at 0x7fedb1cf7e58>
+<PyQt5.QtWidgets.QPushButton object at 0x7fedb1cf7e58>
+<PyQt5.QtWidgets.QPushButton object at 0x7fedb1cf7e58>
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 172, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 177, in stateWidgetHandle
+    if widget.accessibleName() == state:
+RuntimeError: wrapped C/C++ object of type QPushButton has been deleted
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+<PyQt5.QtWidgets.QPushButton object at 0x7fe6167caee8>
+<PyQt5.QtWidgets.QPushButton object at 0x7fe6167caee8>
+<PyQt5.QtWidgets.QPushButton object at 0x7fe6167caee8>
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 172, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 177, in stateWidgetHandle
+    if widget.accessibleName() == state:
+RuntimeError: wrapped C/C++ object of type QPushButton has been deleted
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+<PyQt5.QtWidgets.QPushButton object at 0x7fdfae61dee8>
+<PyQt5.QtWidgets.QPushButton object at 0x7fdfae61dee8>
+<PyQt5.QtWidgets.QPushButton object at 0x7fdfae61dee8>
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 172, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 177, in stateWidgetHandle
+    if widget.accessibleName() == state:
+RuntimeError: wrapped C/C++ object of type QPushButton has been deleted
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Read Voltage
+Read Voltage
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 172, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 175, in stateWidgetHandle
+    print(widget.accessibleName())
+RuntimeError: wrapped C/C++ object of type QPushButton has been deleted
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Read Voltage Read Voltage
+Read Voltage Read Current
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 172, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 175, in stateWidgetHandle
+    print(widget.accessibleName(), state)
+RuntimeError: wrapped C/C++ object of type QPushButton has been deleted
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+<PyQt5.QtWidgets.QPushButton object at 0x7f5b5a81fee8>
+Read Voltage Read Voltage
+Read Voltage Read Current
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 172, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 175, in stateWidgetHandle
+    print(widget.accessibleName(), state)
+RuntimeError: wrapped C/C++ object of type QPushButton has been deleted
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+<PyQt5.QtWidgets.QPushButton object at 0x7f206cf89ee8>
+<PyQt5.QtWidgets.QPushButton object at 0x7f206cf89ee8>
+<PyQt5.QtWidgets.QPushButton object at 0x7f206cf89ee8>
+<PyQt5.QtWidgets.QPushButton object at 0x7f206cf89ee8>
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 172, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 177, in stateWidgetHandle
+    if widget.accessibleName() == state:
+RuntimeError: wrapped C/C++ object of type QPushButton has been deleted
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+<PyQt5.QtWidgets.QPushButton object at 0x7fa3b12e8ee8>
+<PyQt5.QtWidgets.QPushButton object at 0x7fa3b12e8ee8>
+<PyQt5.QtWidgets.QPushButton object at 0x7fa3b12e8ee8>
+<PyQt5.QtWidgets.QPushButton object at 0x7fa3b12e8ee8>
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 171, in <lambda>
+    self.onStateChange.connect(lambda state,widget=widget: self.stateWidgetHandle(state,widget))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 176, in stateWidgetHandle
+    if widget.accessibleName() == state:
+RuntimeError: wrapped C/C++ object of type QPushButton has been deleted
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 109, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 103, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 39, in __init__
+    self.addStateWidget('Read Voltage', self.calibrateBtn)
+AttributeError: 'MainMenu' object has no attribute 'addStateWidget'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+TypeError: <lambda>() missing 3 required positional arguments: 'boundState', 'text', and 'action'
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> 
+wil@taxi ~/D/b/LabMaster> 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 170, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,boundState,text,action))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 175, in stateWidgetHandle
+    if text not in [child.text() for child in self.centralWidget().children()]:
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 175, in <listcomp>
+    if text not in [child.text() for child in self.centralWidget().children()]:
+AttributeError: 'QFormLayout' object has no attribute 'text'
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 170, in <lambda>
+    self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,boundState,text,action))
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 175, in stateWidgetHandle
+    if text not in [child.text() for child in self.centralWidget().children()]:
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 175, in <listcomp>
+    if text not in [child.text() for child in self.centralWidget().children()]:
+AttributeError: 'QFormLayout' object has no attribute 'text'
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+pressed
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 119, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 79, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 42, in __init__
+    self.addStateButton('Read Voltage','Max Calibrate',self.test)
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 169, in addStateButton
+    layout=self.centralWidget().layout()
+AttributeError: 'NoneType' object has no attribute 'layout'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 119, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 79, in __init__
+    self.window = MainMenu()
+  File "WilMaster.py", line 42, in __init__
+    self.addStateButton('Read Voltage','Max Calibrate',self.test)
+  File "/home/wil/Desktop/babel/LabMaster/Core.py", line 169, in addStateButton
+    layout=self.centralWidget().layout()
+AttributeError: 'NoneType' object has no attribute 'layout'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 119, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 80, in __init__
+    menu=MainMenu.getWidget(self.window.getCurrentSetup(), action=self.initDuo)
+AttributeError: 'Gui' object has no attribute 'window'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 118, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 79, in __init__
+    menu=MainMenu.getWidget(MainMenu.getCurrentSetup(), action=self.initDuo)
+TypeError: getCurrentSetup() missing 1 required positional argument: 'self'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 118, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 79, in __init__
+    menu=MainMenu.getWidget(MainMenu.getCurrentSetup(), action=self.initDuo)
+TypeError: getWidget() missing 1 required positional argument: 'options'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 76, in initDuo
+    onExperiment.emit("init")
+NameError: name 'onExperiment' is not defined
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+<DetailWindow.DetailWindow object at 0x7f5a06196438>
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+<DetailWindow.DetailWindow object at 0x7fbe87085438>
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 124, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 116, in __init__
+    self.window.onExperiment.connect(self.detail)
+TypeError: argument 1 has unexpected type 'NoneType'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 125, in <module>
+    gui=Gui()
+  File "WilMaster.py", line 116, in __init__
+    self.window.onExperiment.connect(self.detail)
+TypeError: argument 1 has unexpected type 'NoneType'
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+init
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+  File "WilMaster.py", line 72
+    def getArgs(self);
+                     ^
+SyntaxError: invalid syntax
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 25, in <module>
+    from MultiChannelDaq import MultiChannelDaq as Daq
+  File "/home/wil/Desktop/babel/LabMaster/MultiChannelDaq.py", line 2, in <module>
+    from Core import DetailWindow
+ImportError: cannot import name 'DetailWindow' from 'Core' (/home/wil/Desktop/babel/LabMaster/Core.py)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 25, in <module>
+    from MultiChannelDaq import MultiChannelDaq as Daq
+ImportError: cannot import name 'MultiChannelDaq' from 'MultiChannelDaq' (/home/wil/Desktop/babel/LabMaster/MultiChannelDaq.py)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 107, in startExperiment
+    self.window = Daq()
+  File "/home/wil/Desktop/babel/LabMaster/MultiChannelDaq.py", line 6, in __init__
+    super(Daq,self).__init__()
+NameError: name 'Daq' is not defined
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 107, in startExperiment
+    self.window = MultiChannelDaq()
+  File "/home/wil/Desktop/babel/LabMaster/MultiChannelDaq.py", line 6, in __init__
+    super(Daq,self).__init__()
+NameError: name 'Daq' is not defined
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> 
+wil@taxi ~/D/b/LabMaster> 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+pressed
+pressed
+pressed
+wil@taxi ~/D/b/LabMaster> python
+wil@taxi ~/D/b/LabMaster> python
+Python 3.7.0 (default, Sep 15 2018, 19:13:07) 
+[GCC 8.2.1 20180831] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> print(range(1,5))
+range(1, 5)
+>>> print(range(1,5))
+range(1, 5)
+>>> u5for i in range(1,5): print(i)
+... 
+1
+2
+3
+4
+>>> for i in range(1,5): print(i)
+... exit
+  File "<stdin>", line 2
+    exit
+       ^
+SyntaxError: invalid syntax
+>>>   C-c C-c
+KeyboardInterrupt
+>>>   C-c C-c
+KeyboardInterrupt
+>>>   C-c C-c
+KeyboardInterrupt
+>>> xit()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'xit' is not defined
+>>> exit()
+wil@taxi ~/D/b/LabMaster> python
+wil@taxi ~/D/b/LabMaster> python
+Python 3.7.0 (default, Sep 15 2018, 19:13:07) 
+[GCC 8.2.1 20180831] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> exit()
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 107, in startExperiment
+    self.window = Daq()
+  File "/home/wil/Desktop/babel/LabMaster/MultiChannelDaq.py", line 12, in __init__
+    ax.plot([x for x in range(100)],[random() for y in range(100)])
+NameError: name 'ax' is not defined
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> cpython WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 107, in startExperiment
+    self.window = Daq()
+  File "/home/wil/Desktop/babel/LabMaster/MultiChannelDaq.py", line 6, in __init__
+    super(MultiChannelDaq,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/DetailWindow.py", line 15, in __init__
+    canvas,figure = self.getCanvas()
+  File "/home/wil/Desktop/babel/LabMaster/DetailWindow.py", line 43, in getCanvas
+    canvas=FigureCanvas(fig)
+NameError: name 'fig' is not defined
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 107, in startExperiment
+    self.window = Daq()
+  File "/home/wil/Desktop/babel/LabMaster/MultiChannelDaq.py", line 6, in __init__
+    super(MultiChannelDaq,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/DetailWindow.py", line 14, in __init__
+    layout.addWidget(self.getMenu())
+  File "/home/wil/Desktop/babel/LabMaster/DetailWindow.py", line 35, in getMenu
+    menu.getFixedSize(500,800)
+AttributeError: 'QWidget' object has no attribute 'getFixedSize'
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 107, in startExperiment
+    self.window = Daq()
+  File "/home/wil/Desktop/babel/LabMaster/MultiChannelDaq.py", line 6, in __init__
+    super(MultiChannelDaq,self).__init__()
+  File "/home/wil/Desktop/babel/LabMaster/DetailWindow.py", line 14, in __init__
+    layout.addWidget(self.getMenu())
+  File "/home/wil/Desktop/babel/LabMaster/DetailWindow.py", line 35, in getMenu
+    menu.setFixedSize(500,menu.size()[1])
+TypeError: 'QSize' object does not support indexing
+fish: “python WilMaster.py” terminated by signal SIGABRT (Abort)
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+Traceback (most recent call last):
+  File "WilMaster.py", line 25, in <module>
+    from MultiChannelDaq import MultiChannelDaq as Daq
+  File "/home/wil/Desktop/babel/LabMaster/MultiChannelDaq.py", line 17
+    .plot([x for x in range(100)],[random() for y in range(100)])
+    ^
+SyntaxError: invalid syntax
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+wil@taxi ~/D/b/LabMaster> python WilMaster.py 
+{'state': 'Read Voltage', 'email': 'wwyatt@ucsc.edu', 'filename': 'test', 'startVolt': '0', 'endVolt': '0', 'steps': '0', 'kcomp': '0', 'holdTime': '0', 'measDelay': '0', 'measTime': '0', 'comp1': '0', 'comp2': '0', 'comp3': '0', 'comp4': '0'}
+wil@taxi ~/D/b/LabMaster> 

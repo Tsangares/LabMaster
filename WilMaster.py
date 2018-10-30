@@ -17,158 +17,35 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from multiprocessing import Process
 from threading import Thread
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+from Core import MenuWindow
+from DetailWindow import DetailWindow
+from MultiChannelDaq import MultiChannelDaq as Daq
 
-#Value Handler simplifies getting the data from the input fields on the gui.
-class ValueHandler():
+#TODO: Seperate Gui into a mainmenu and a Gui class.
+class MainMenu(MenuWindow):
+    onExperiment = pyqtSignal(str)
     def __init__(self):
-        self.data={}
-    def getSpinBox(self,label):
-        self.data[label] = QSpinBox()
-        return self.data[label]
-    def getLineEdit(self,label):
-        self.data[label] = QLineEdit()
-        return self.data[label]
-    def getData(self):
-        output={}
-        for key,data in self.data.items():
-            output[key]=data.text()
-        return output
-    def dump(self):
-        print(self.getData())
+        #States need to be configured first to setup the toolbar
+        states=['Read Current', 'Read Voltage']
+        super(MainMenu,self).__init__(states)
 
-class Saveable():
-    def __init__(self):
-        self.oracle=ValueHandler()
+        #This setups the fields and buttons
+        menu=self.getWidget(self.getCurrentSetup(), action=self.initDuo)
+        self.setCentralWidget(menu)
 
-    def saveSettings(self, filename=".settings.json"):
-        saveData=json.dumps(self.oracle.getData())
-        with open(filename, "w") as f:
-            f.write(saveData)
+        #This will change the page when the toolbar is perturbed.
+        self.calibrateBtn=QPushButton('Max Calibrate')
+        self.addStateButton('Read Voltage','Max Calibrate',self.test)
 
-    def loadSettings(self,filename=".settings.json"):
-        data=None
-        try:
-            with open(filename) as f:
-                data=json.loads(f.read())
-                f.close()
-            if data != None:
-                for key,field in self.oracle.data.items():
-                    try:
-                        self.oracle.data[key].setText(data[key])
-                    except KeyError:
-                        print("Nothing saved for %s"%key)
-                self.setState()
-        except json.decoder.JSONDecodeError:
-            print("Save file is corrupted, please delete %s"%filename)            
-        except FileNotFoundError:
-            print("No settings file.")
-
-    def loadAutosave(self):
-        self.loadSettings(filename=".settings.tmp.json")
-        
-#Gui's in general have a lot of boiler plate code.
-class Gui(Saveable):
-    def __init__(self):
-        super(Gui,self).__init__()
-        self.processes=[]
-        self.states=[]
-        self.functions=['Read Current', 'Read Voltage']
-        self.app = QApplication([])
-        self.window = QMainWindow()
-        self.toolbar = QToolBar()
-
-        #getWidget is a big function that calls getLayout
-        main=self.getWidget("Read Current", self.getCurrentSetup(), self.initDuo)
-        #self.getWidget("Read Voltage", self.getVoltageSetup())
-        self.buildToolBar(self.toolbar)
-        self.window.addToolBar(self.toolbar)
-        self.window.setCentralWidget(main)
         self.loadAutosave()
-        self.window.show()
-        self.app.aboutToQuit.connect(self.exit)
-        self.app.exec_()
+        self.show()
 
-    def exit(self):
-        self.saveSettings(filename=".settings.tmp.json")
-          
-    def getToolbarButtons(self):
-        out=[]
-        for child in self.toolbar.children():
-            if type(child) == QWidget:
-                for c in child.children():
-                    if type(c) == QRadioButton:
-                        out.append(c)
-        return out
-
-        #Toolbar is used to switch between main-widgets/experiments
-    def buildToolBar(self, toolbar):
-        layout = QHBoxLayout()
-        self.oracle.data['state']=QLineEdit()
-        for func in self.functions:
-            btn=QRadioButton(func)
-            btn.clicked.connect(self.storeState)
-            layout.addWidget(btn)
-            layout.setAlignment(Qt.AlignCenter)
-        widget = QWidget()
-        widget.setLayout(layout)
-        toolbar.addWidget(widget)
+    def test(self):
+        print("pressed")
         
-    def setState(self):
-        state=self.oracle.data['state'].text()
-        for btn in self.getToolbarButtons():
-            if btn.text() == state:
-                btn.toggle()
-            
-    def getState(self):
-        for btn in self.getToolbarButtons():
-            if btn.isChecked():
-                return btn.text()
-        return None
-
-    def storeState(self):
-        self.oracle.data['state'].setText(self.getState())
-
-    #Converts a dict of <name,key> objects to a form.
-    #The `name` is a human readable descriptior,
-    # and `key` pulls options from the gui to give to the experiment's code
-    def getLayout(self,options):
-        layout = QFormLayout()
-        keys=[key for key,item in self.oracle.data.items()]
-        for opt in options:
-            key=opt['key']
-            if key in keys:
-                print("Handling a duplicate key, %s"%key)
-                layout.addRow(QLabel(opt['name']),self.oracle.data[key])
-            else:
-                layout.addRow(QLabel(opt['name']),self.oracle.getLineEdit(key))
-        layout.setContentsMargins(20,20,20,20)
-        layout.setSpacing(5)
-        return layout
-
-    #Generates the fields based on options and sets up the standard buttons.
-    def getWidget(self,name,options,action=None):
-        #Get options
-        layout=self.getLayout(options)
-
-        #Setup buttons
-        startBtn=QPushButton('Start')
-        powerBtn=QPushButton('Power Down')
-        saveBtn=QPushButton('Save Configuration')
-        loadBtn=QPushButton('Load Autosave')
-        if action != None: startBtn.clicked.connect(action)
-        saveBtn.clicked.connect(lambda: self.saveSettings())
-        loadBtn.clicked.connect(self.loadAutosave)
-        layout.addRow(startBtn)
-        layout.addRow(powerBtn)
-        #layout.addRow(saveBtn)
-        #layout.addRow(loadBtn)
-
-        #Create widget
-        widget = QWidget()
-        widget.setLayout(layout)
-        widget.setAccessibleName(name)
-        return widget
-
     #Sourcing voltage to zero and reading current on the Agilent
     #Keithly is used to source voltage set by these options
     def getCurrentSetup(self):
@@ -186,32 +63,14 @@ class Gui(Saveable):
         for i in range(1,5):
             options.append({'name': 'Agilent Compliance for Chan %d'%i, 'key': 'comp%d'%i})
         return options
-
-    #Sourcing current to zero and reading voltage on the Agilent
-    #Keithly is used to source voltage configured by these options
-    def getVoltageSetup(self):
-        options=[
-            {'name': 'Email', 'key': 'email'},
-            {'name': 'Filename', 'key': 'filename'},
-            {'name': 'Start Volt', 'key': 'startVolt'},
-            {'name': 'End Volt',   'key': 'endVolt'},
-            {'name': 'Steps',      'key': 'steps'},
-            {'name': 'Keithley Compliance',    'key': 'kcomp'},
-            {'name': 'Agilent Hold Time',      'key': 'holdTime'},
-            {'name': 'Agilent Measurement Delay',  'key': 'measDelay'},
-            {'name': 'Agilent Measurement Time',   'key': 'measTime'},
-        ]
-        for i in range(1,5):
-            options.append({'name': 'Agilent Compliance for Chan %d'%i, 'key': 'comp%d'%i})
-        return options
-
     
     #Connects gui to the experiments code.
     def initDuo(self):
-        #p=Thread(target=self.initView)
-        #p.start()
-        #self.processes.append(p)
-        oracle=self.oracle.getData()
+        self.statusBar().showMessage("Started Duo!", 2000)
+        self.onExperiment.emit("init")
+
+    def getArgs(self):
+        oracle=self.getData()
         args=(float(oracle['measDelay']),
                float(oracle['measTime']),
                1,
@@ -227,16 +86,24 @@ class Gui(Saveable):
                float(oracle['comp4']),
                oracle['email'],
                oracle['filename'])
-        p=Thread(target=runDuo, args=args)
-        #p.start()
-        self.processes.append(p)
-        print("Thread created and stored; not started", self.processes)
-        widget=QWidget()
-        widget.show()
+        return args
 
-    def initView(self):
-        widget=QWidget()
-        widget.show()
+#Gui's in general have a lot of boiler plate code.
+class Gui(QApplication):
+
+    def __init__(self):
+        super(Gui,self).__init__(['Multi-Channel DAQ'])
+        self.processes=[]
+        self.detail=None
+        self.window = MainMenu()
+        self.window.onExperiment.connect(self.startExperiment)
+        self.aboutToQuit.connect(self.window.exit)
+        self.exec_()
         
+    def startExperiment(self,msg):
+        if(msg == 'init'):
+            data = self.window.getData()
+            self.window.close()
+            self.window = Daq(data)
 gui=Gui()
 
