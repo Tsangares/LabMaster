@@ -21,7 +21,6 @@ class DetailWindow(QMainWindow):
         scroll=QScrollArea()
         output=QWidget()
         scroll.setWidgetResizable(True)
-        scroll.setFixedSize(500,500)
         scroll.setWidget(output)
         layout=QFormLayout(output)
         self.output=layout

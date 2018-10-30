@@ -6,7 +6,8 @@ from DetailWindow import DetailWindow
 from io import BytesIO
 from PyQt5.QtWidgets import QLabel
 import json, time
-
+from threading import Thread
+from multiprocessing import Process
 class MultiChannelDaq(DetailWindow):
     def __init__(self, options):
         super(MultiChannelDaq,self).__init__()
@@ -17,31 +18,33 @@ class MultiChannelDaq(DetailWindow):
         self.testPlot()
         self.log("heyi")
         self.show()
+        self.child=Thread(target=self.start,args=(options,))
+        self.child.start()
 
-        
-        return
+    def start(self,options):
         #Connect to instruments
         self.agilent  = Agilent4155C(reset=True)
-        self.keithley = Keithley2657a()
-
+        #self.keithley = Keithley2657a()
+        print(options)
         #Setup their initial configuration
-        self.configureAgilent(options)
-        self.configureKeithley(options)
-
-    
-    def configureAglient(self, **kwargs):
+        self.configureAglient(options)
+        #self.configureKeithley(options)
+        self.collectData(options)
+        
+    def configureAglient(self, kwargs):
         for i in range(1,5):
-            self.agilent.setVoltage(i,0,options['comp%d'%i])
+            self.agilent.setVoltage(i,0,float(kwargs['comp%d'%i]))
         self.agilent.setMedium()
-        self.agilent.setHoldTime(kwargs['holdTime'])
+        self.agilent.setHoldTime(float(kwargs['holdTime']))
 
-    def configureKeithley(self, **kwargs):
+    def configureKeithley(self, kwargs):
         #Setting the keithley compliance
-        self.keithley.configure_measurement(1, 0, kwargs['kcomp'])
+        #TODO: Check to see if casting caused errors.
+        self.keithley.configure_measurement(1, 0, float(kwargs['kcomp']))
 
-    def collectData(self, **kwargs):
-        self.log(agilent.getCurrent(agilent_samples,agilent_duration))
-        self.log(keithley.get_current())
+    def collectData(self, kwargs):
+        self.log(self.agilent.getCurrent(1,1))
+        #self.log(keithley.get_current())
         
     def testPlot(self):
         for fig in self.figs:
