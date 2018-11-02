@@ -55,19 +55,35 @@ class DetailWindow(QMainWindow):
     def log(self,text):
         self.output.addRow(QLabel("%.02f"%(time.time()%100)),QLabel(str(text)))
 
+    #All on one plot.
     def addPoint(self,point):
+        self.fig.clear()
         for key,item in point.items():
             try:
                 self.cache[key]
             except KeyError:
                 self.cache[key]=[]
             self.cache[key].append(item)
-        for fig in self.figs:
+            x=range(len(self.cache[key]))
+            self.fig.plot(x,self.cache[key],label=key)
+        self.fig.legend()
+        self.canvas.draw()
+        
+    ''' #This is for every data point on its own plot.
+    def addPoint(self,point):
+        for tmp,fig in zip(point.items(),self.figs):
+            key,item=tmp
+            try:
+                self.cache[key]
+            except KeyError:
+                self.cache[key]=[]
+            self.cache[key].append(item)
             fig.clear()
             x=range(len(self.cache[key]))
             fig.plot(x,self.cache[key])
         self.canvas.draw()
-    
+        '''
+        
     def testJumple(self):
         for fig in self.figs:
             fig.plot([x for x in range(100)],[random() for y in range(100)])

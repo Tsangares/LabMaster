@@ -69,25 +69,6 @@ class MainMenu(MenuWindow):
         self.statusBar().showMessage("Started Duo!", 2000)
         self.onExperiment.emit("init")
 
-    def getArgs(self):
-        oracle=self.getData()
-        args=(float(oracle['measDelay']),
-               float(oracle['measTime']),
-               1,
-               float(oracle['holdTime']),
-               float(oracle['startVolt']),
-               float(oracle['endVolt']),
-               int(oracle['steps']),
-               "None",
-               float(oracle['kcomp']),
-               float(oracle['comp1']),
-               float(oracle['comp2']),
-               float(oracle['comp3']),
-               float(oracle['comp4']),
-               oracle['email'],
-               oracle['filename'])
-        return args
-
 #Gui's in general have a lot of boiler plate code.
 class Gui(QApplication):
 

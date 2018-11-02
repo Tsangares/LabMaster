@@ -11,6 +11,16 @@ from threading import Thread
 from multiprocessing import Process
 import matplotlib.pyplot as plt
 
+def chanToStr(chan):
+    map={
+        25:'E' , 24:'2' , 23:'BB', 22:'AA', 21:'W' ,
+        20:'6' , 19:'A' , 18:'1' , 17:'24', 16:'19',
+        15:'F' , 14:'B' , 13:'12', 12:'23', 11:'V' ,
+        10:'7' ,  9:'11',  8:'13',  7:'14',  6:'18',
+         5:'H' ,  4:'M' ,  3:'N' ,  2:'P' ,  1:'U' ,
+    }
+    return map[chan]
+
 class DaqProtocol(QThread):
     newSample = pyqtSignal(dict)
     def __init__(self,options,widget=None):
@@ -19,14 +29,14 @@ class DaqProtocol(QThread):
     def run(self):
         options=self.options
         #Connect to instruments
-        ka=(False,False)
+        ka=(True,True)
         if ka[0]:
             self.keithley = Keithley2657a()
             self.configureKeithley(options)
         if ka[1]:
             self.agilent = Agilent4155C(reset=True)
             self.configureAglient(options)
-        #self.log("Starting data collection")
+        self.log("Starting data collection")
         data=self.collectData(options) #In the format of {'key': [values...]}
         self.dataPoints=[]
         #calculate the current form voltage if using switch board
@@ -50,7 +60,7 @@ class DaqProtocol(QThread):
 
     def getMeasurement(self,samples,duration):
         #For testing
-        return {"chan1": random(),"chan2": random(),"chan3": random(),"chan4": random()}
+        #return {"a": random()*4, "b": random()*4,"chan1": random(),"chan2": random(),"chan3": random(),"chan4": random()}
         #Release
         agilent={"chan%d"%key[-1]: value[-1] for key,value in self.agilent.getCurrent(samples,duration).items()} #{'V1': float, ...}
         for key,value in agilent.items():
@@ -63,8 +73,8 @@ class DaqProtocol(QThread):
         return agilent
         
     def collectData(self, kwargs):
-        #self.log(self.agilent.getCurrent(1,1))
-        #self.log(keithley.get_current())
+        self.log(self.agilent.getCurrent(1,1))
+        self.log(self.keithley.get_current())
         delay=.1
         startVolt=float(kwargs['startVolt'])
         endVolt=float(kwargs['endVolt'])
@@ -72,8 +82,8 @@ class DaqProtocol(QThread):
         step=(endVolt-startVolt)/steps
         voltages=list(linspace(startVolt,endVolt,steps))
         results=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'])
-        #print("This is the data aquired: ",results)
-        #self.keithley.powerDownPSU()
+        print("This is the data aquired: ",results)
+        self.keithley.powerDownPSU()
         output={'V': voltages}
         for key,value in results[0].items(): output[key]=[]
         for result in results:
@@ -86,7 +96,7 @@ class DaqProtocol(QThread):
         return False
 
     def aquireLoop(self,volt,step,limit,measTime,delay=1):
-        #self.keithley.set_output(volt)
+        self.keithley.set_output(volt)
         time.sleep(delay)
         meas=self.getMeasurement(2,measTime)
         #meas=self.getPoint()
@@ -100,7 +110,6 @@ class DaqProtocol(QThread):
     
     #returns the second item in this weird format.
     def skipMeasurements(result, skip):
-        
         output={}
         for key in result:
             currents=result[key][skip:]
@@ -116,8 +125,9 @@ class MultiChannelDaq(DetailWindow):
     def __init__(self, options):
         super(MultiChannelDaq,self).__init__()
         #Build number of plots
-        for i in range(1,5):
-            self.figs.append(self.figure.add_subplot(2,2,i))
+        #for i in range(1,5):
+        #    self.figs.append(self.figure.add_subplot(2,2,i))
+        self.fig=self.figure.add_subplot(1,1,1)
         self.show()
         
         #Starts the protocol thread
