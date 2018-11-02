@@ -39,6 +39,7 @@ class DetailWindow(QMainWindow):
     def getMenu(self):
         menu=QWidget()
         menu.setFixedWidth(menu.width())
+        menu.setFixedHeight(500)
         layout=QFormLayout(menu)
         btn=QPushButton("Force Shutdown")
         btn.clicked.connect(lambda: self.log('pushed'))

@@ -1,5 +1,6 @@
 from queue import Queue
 from PowerSupply import *
+from Agilent import Agilent4155C
 from numpy import linspace
 from random import random
 from DetailWindow import DetailWindow
@@ -23,9 +24,14 @@ def chanToStr(chan):
 
 class DaqProtocol(QThread):
     newSample = pyqtSignal(dict)
+    onLog = pyqtSignal(str)
     def __init__(self,options,widget=None):
         super(DaqProtocol,self).__init__(widget)
         self.options=options
+
+    def log(self,string):
+        self.onLog.emit(str(string))
+        
     def run(self):
         options=self.options
         #Connect to instruments
@@ -49,7 +55,7 @@ class DaqProtocol(QThread):
 
     def configureAglient(self, kwargs):
         for i in range(1,5):
-            self.agilent.setVoltage(i,0,float(kwargs['comp%d'%i]))
+            self.agilent.setCurrent(i,0,float(kwargs['comp%d'%i]))
         self.agilent.setMedium()
         self.agilent.setHoldTime(float(kwargs['holdTime']))
 
@@ -62,19 +68,15 @@ class DaqProtocol(QThread):
         #For testing
         #return {"a": random()*4, "b": random()*4,"chan1": random(),"chan2": random(),"chan3": random(),"chan4": random()}
         #Release
-        agilent={"chan%d"%key[-1]: value[-1] for key,value in self.agilent.getCurrent(samples,duration).items()} #{'V1': float, ...}
+        agilent={"chan%s"%key[-1]: value[-1] for key,value in self.agilent.read(samples,duration).items()} #{'V1': float, ...}
         for key,value in agilent.items():
             if('v' in key.lower() or 'i' in key.lower()):
                 print("Failed to properly format measurements")
-            else:
-                print("Successfully formated measurements")
         keithley=self.keithley.get_current() #float
         agilent['keithley']=keithley
         return agilent
         
     def collectData(self, kwargs):
-        self.log(self.agilent.getCurrent(1,1))
-        self.log(self.keithley.get_current())
         delay=.1
         startVolt=float(kwargs['startVolt'])
         endVolt=float(kwargs['endVolt'])
@@ -96,12 +98,15 @@ class DaqProtocol(QThread):
         return False
 
     def aquireLoop(self,volt,step,limit,measTime,delay=1):
+        self.log("Setting keithley to %.03e"%volt)
+        self.log("%s-%s"%(step,limit))
         self.keithley.set_output(volt)
         time.sleep(delay)
         meas=self.getMeasurement(2,measTime)
         #meas=self.getPoint()
         self.newSample.emit(meas)
-        if volt >= limit:
+        if abs(volt) >= abs(limit):
+            self.log("Last voltage measured, ending data collection.")
             return [meas]
         elif (limit-volt)/step > 3 and self.checkCompliance(meas):
             return self.aquireLoop(volt+step,step,volt+step*2,measTime)+[meas]
@@ -133,6 +138,7 @@ class MultiChannelDaq(DetailWindow):
         #Starts the protocol thread
         self.thread=DaqProtocol(options,self.mainWidget)
         self.thread.newSample.connect(self.addPoint)
+        self.thread.onLog.connect(self.log)
         self.thread.start()
 
 
