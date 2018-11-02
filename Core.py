@@ -2,6 +2,21 @@ import time,json
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
+class TimeSensitive:
+    def __init__(self):
+        self.startTime=None
+        self.endTime=None
+  
+    def checkpoint(self,relative=True,v=True):
+        if not self.startTime is None:
+            self.endTime=time.time()
+            if v: print("Time %.04f"%(self.endTime-self.startTime))
+            if relative: self.startTime=self.endTime
+            else: self.endTime=self.startTime
+        else:
+            self.startTime=time.time()
+  
+
 #Value Handler simplifies getting the data from the input fields on the gui.
 class ValueHandler:
     def __init__(self):

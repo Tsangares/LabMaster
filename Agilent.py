@@ -358,6 +358,7 @@ class Agilent4155C(Instrument):
         results={}
         if len(self.outputs) == 1:
             return float(self.query(":DATA? '%s'"%self.outputs[0]))
+        #This is a wierd statement. The variables have to be in the self.outputs list to be read.
         for output in self.outputs:
             results[output]=[float(val) for val in self.query(":DATA? '%s'"%output).split(',')]
         return results

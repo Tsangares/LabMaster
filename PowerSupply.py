@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import visa
+import visa,time
 from Instrument import Instrument 
 
 class PowerSupplyFactory(Instrument):
@@ -137,7 +137,20 @@ class Keithley2657a(PowerSupplyFactory):
         """
 
         return float(self.supply.query("printnumber(smua.measure.v())").split("\n")[0])
-    
+
+    #`speed` is Volt per seccond
+    def powerDownPSU(self, speed=5):
+        voltage=self.get_voltage()
+        timeStep=.01 #seccond delay per step
+        voltStep=speed*timeStep
+        totalSteps=int(abs(voltage/voltStep))
+        print("Poweing down Keithley from %s to 0V."%voltage)
+        print("At a rate of %sV/s with delay of %s, there will be %s steps at %sV per step for %s secconds."%(speed,timeStep,totalSteps,voltStep,totalSteps*timeStep))
+        voltages=linspace(voltage,0,totalSteps)
+        for volt in voltages:
+            self.set_output(volt)
+            time.sleep(timeStep)
+            
 class Keithley2400(PowerSupplyFactory):
     """
     Object which control the Keithley 2400 series high voltage supplies

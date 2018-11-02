@@ -3,20 +3,30 @@ from PyQt5.QtWidgets import *
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import time
+from threading import Thread
+from multiprocessing import Process
+from queue import Queue
+from random import random
+
+
 
 class DetailWindow(QMainWindow):
     def __init__(self):
         super(DetailWindow,self).__init__()
-        self.graph=None
+        self.cache={} #This data is what is plotted.
+        self.figs=[] #These are the figures to plot on.
+        self.output=None
+        
+        canvas,figure = self.getCanvas()
+        self.figure=figure #Pyplot
+        self.canvas=canvas #QWidget
+
         self.mainWidget=QWidget()
         self.setCentralWidget(self.mainWidget)
-        self.output=None
         layout=QHBoxLayout(self.mainWidget)
-        layout.addWidget(self.getMenu())
-        canvas,figure = self.getCanvas()
-        self.figure=figure
+        layout.addWidget(self.getMenu())        
         layout.addWidget(canvas)
-
+            
     def getOutputBox(self):
         scroll=QScrollArea()
         output=QWidget()
@@ -39,10 +49,27 @@ class DetailWindow(QMainWindow):
     def getCanvas(self):
         figure=plt.figure()
         canvas=FigureCanvas(figure)
+        self.testJumple()
         return canvas,figure
-
+            
     def log(self,text):
         self.output.addRow(QLabel("%.02f"%(time.time()%100)),QLabel(str(text)))
 
+    def addPoint(self,point):
+        for key,item in point.items():
+            try:
+                self.cache[key]
+            except KeyError:
+                self.cache[key]=[]
+            self.cache[key].append(item)
+        for fig in self.figs:
+            fig.clear()
+            x=range(len(self.cache[key]))
+            fig.plot(x,self.cache[key])
+        self.canvas.draw()
+    
+    def testJumple(self):
+        for fig in self.figs:
+            fig.plot([x for x in range(100)],[random() for y in range(100)])
 
 
