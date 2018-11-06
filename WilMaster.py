@@ -59,6 +59,7 @@ class MainMenu(MenuWindow):
             {'name': 'Agilent Hold Time',      'key': 'holdTime'},
             {'name': 'Agilent Measurement Delay',  'key': 'measDelay'},
             {'name': 'Agilent Measurement Time',   'key': 'measTime'},
+            {'name': 'Number of Channels',   'key': 'nChan'},
         ]
         for i in range(1,5):
             options.append({'name': 'Agilent Compliance for Chan %d'%i, 'key': 'comp%d'%i})
@@ -83,6 +84,7 @@ class Gui(QApplication):
         
     def startExperiment(self,msg):
         if(msg == 'init'):
+            self.window.saveSettings()
             data = self.window.getData()
             self.window.close()
             self.window = Daq(data)

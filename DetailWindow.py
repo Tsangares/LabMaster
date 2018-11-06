@@ -21,7 +21,7 @@ class DetailWindow(QMainWindow):
         self.figure=figure #Pyplot
         self.canvas=canvas #QWidget
 
-        self.mainWidget=QWidget()
+        self.mainWidget=QSplitter()
         self.setCentralWidget(self.mainWidget)
         layout=QHBoxLayout(self.mainWidget)
         layout.addWidget(self.getMenu())        
@@ -31,6 +31,7 @@ class DetailWindow(QMainWindow):
         scroll=QScrollArea()
         output=QWidget()
         scroll.setWidgetResizable(True)
+        scroll.setFixedHeight(600)
         scroll.setWidget(output)
         layout=QFormLayout(output)
         self.output=layout
@@ -38,8 +39,6 @@ class DetailWindow(QMainWindow):
 
     def getMenu(self):
         menu=QWidget()
-        menu.setFixedWidth(menu.width())
-        menu.setFixedHeight(500)
         layout=QFormLayout(menu)
         btn=QPushButton("Force Shutdown")
         btn.clicked.connect(lambda: self.log('pushed'))
@@ -54,7 +53,7 @@ class DetailWindow(QMainWindow):
         return canvas,figure
             
     def log(self,text):
-        self.output.addRow(QLabel("%.02f"%(time.time()%100)),QLabel(str(text)))
+        self.output.insertRow(0,QLabel("%.02f"%(time.time()%100)),QLabel(str(text)))
 
     #All on one plot.
     def addPoint(self,point):

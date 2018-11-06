@@ -11,8 +11,10 @@ import json, time
 from threading import Thread
 from multiprocessing import Process
 import matplotlib.pyplot as plt
-
-def chanToStr(chan):
+from Arduino import Max
+DEBUG=True
+KEITHLEY=False
+def getChan(chan):
     map={
         25:'E' , 24:'2' , 23:'BB', 22:'AA', 21:'W' ,
         20:'6' , 19:'A' , 18:'1' , 17:'24', 16:'19',
@@ -35,13 +37,14 @@ class DaqProtocol(QThread):
     def run(self):
         options=self.options
         #Connect to instruments
-        ka=(True,True)
-        if ka[0]:
-            self.keithley = Keithley2657a()
-            self.configureKeithley(options)
-        if ka[1]:
+        port = 0
+        self.arduino=None
+        if not DEBUG:
+            if KEITHLEY: self.keithley = Keithley2657a()
+            if KEITHLEY: self.configureKeithley(options)
             self.agilent = Agilent4155C(reset=True)
             self.configureAglient(options)
+            self.arduino = Max(port)
         self.log("Starting data collection")
         data=self.collectData(options) #In the format of {'key': [values...]}
         self.dataPoints=[]
@@ -54,7 +57,9 @@ class DaqProtocol(QThread):
         return [random(),random(),random(),random()]
 
     def configureAglient(self, kwargs):
-        for i in range(1,5):
+        if kwargs['nChan'] < 0 or kwargs['nChan'] > 4:
+            raise Exception("ERROR: Please set number of channels between 0 and 4!")
+        for i in range(1,kwargs['nChan']+1):
             self.agilent.setCurrent(i,0,float(kwargs['comp%d'%i]))
         self.agilent.setMedium()
         self.agilent.setHoldTime(float(kwargs['holdTime']))
@@ -64,16 +69,18 @@ class DaqProtocol(QThread):
         #TODO: Check to see if casting caused errors.
         self.keithley.configure_measurement(1, 0, float(kwargs['kcomp']))
 
-    def getMeasurement(self,samples,duration):
+    def getMeasurement(self,samples,duration,prefix=0):
         #For testing
-        #return {"a": random()*4, "b": random()*4,"chan1": random(),"chan2": random(),"chan3": random(),"chan4": random()}
+        if DEBUG:
+            return {"chan%d"%(i+prefix): random()*i for i in range(1,5)}
         #Release
-        agilent={"chan%s"%key[-1]: value[-1] for key,value in self.agilent.read(samples,duration).items()} #{'V1': float, ...}
+        agilent={"chan%s"%(key[-1]+prefix): value[-1] for key,value in self.agilent.read(samples,duration).items()} #{'V1': float, ...}
         for key,value in agilent.items():
             if('v' in key.lower() or 'i' in key.lower()):
                 print("Failed to properly format measurements")
-        keithley=self.keithley.get_current() #float
-        agilent['keithley']=keithley
+        if KEITHLEY:
+            keithley=self.keithley.get_current() #float
+            agilent['keithley%d'%prefix]=keithley
         return agilent
         
     def collectData(self, kwargs):
@@ -84,8 +91,8 @@ class DaqProtocol(QThread):
         step=(endVolt-startVolt)/steps
         voltages=list(linspace(startVolt,endVolt,steps))
         results=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'])
-        print("This is the data aquired: ",results)
-        self.keithley.powerDownPSU()
+        #print("This is the data aquired: ",results)
+        if not DEBUG and KEITHLEY: self.keithley.powerDownPSU()
         output={'V': voltages}
         for key,value in results[0].items(): output[key]=[]
         for result in results:
@@ -98,13 +105,24 @@ class DaqProtocol(QThread):
         return False
 
     def aquireLoop(self,volt,step,limit,measTime,delay=1):
-        self.log("Setting keithley to %.03e"%volt)
-        self.log("%s-%s"%(step,limit))
-        self.keithley.set_output(volt)
+        self.log("Setting keithley to %.02e"%volt)
+        self.log("Step is %.02e; while limit is %.02e"%(step,limit))
+        if not DEBUG and KEITHLEY: self.keithley.set_output(volt)
         time.sleep(delay)
-        meas=self.getMeasurement(2,measTime)
-        #meas=self.getPoint()
-        self.newSample.emit(meas)
+        
+        switchboard = False
+        meas = {}
+        if switchboard:
+            #self.arduino.channel_map
+            for chan, value in self.arduino.channel_map:
+                self.arduino.getChannel(chan)
+                time.sleep(1)
+                currentMeas=self.getMeasurement(2,measTime,offset=chan)
+                meas={**meas, **currentMeas}
+        else:
+            meas=self.getMeasurement(2,measTime)
+            
+        self.newSample.emit(meas) #Plotting
         if abs(volt) >= abs(limit):
             self.log("Last voltage measured, ending data collection.")
             return [meas]
