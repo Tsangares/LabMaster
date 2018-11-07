@@ -1,29 +1,11 @@
-from Arduino import Max
+def test(**kwargs):
+    for a,b in kwargs.items():
+        print(a,b)
 
-def testConnect():
-    GRADE=False
-    port=None
-    arduino=Max()
-    for i in range(0,100):
-        connected=arduino.connect(i)
-        if connected:
-            GRADE=True
-            port=i
-            break
-    return GRADE,port,arduino.ArduinoSerial
+test(apple="a", qq=5, ee=11, apple="apple")
 
+def gog(args):
+    for arg in args:
+        print(arg)
 
-def testSelect(port):
-    GRADE=False
-    arduino=Max(port)
-    
-
-def run():
-    grade,port,arduino=testConnect()
-    print("TestConnect Grade, port ArduinoSerial:",grade)
-
-
-
-    
-
-    
+gog(["a", 5, 11, "apple"])

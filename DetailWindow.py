@@ -59,11 +59,13 @@ class DetailWindow(QMainWindow):
     def addPoint(self,point):
         self.fig.clear()
         for key,item in point.items():
+            if 'pass' in key: continue
             try:
                 self.cache[key]
             except KeyError:
                 self.cache[key]=[]
             self.cache[key].append(item)
+        for key,item in self.cache.items():
             x=range(len(self.cache[key]))
             self.fig.plot(x,self.cache[key],label=key)
         self.fig.legend()

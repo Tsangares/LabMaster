@@ -1,13 +1,11 @@
 # this version uses Arduino sketch "ProbeCard_CH4"
 # first step in converting program to functions.
 import serial
-
 import time
 import sys
 import struct
 class Max:
-    def __init__(self,port=None):
-        reverse_map = {
+    reverse_map = {
             #key: lower multiplexer address, value: channels output to J1, J2, J3, and J4
             # in order.  all channels are routed through four 8:1 multiplexers with four
             # outputs routed to output connectors J1-J4.  All four multiplexers are controlled
@@ -20,7 +18,7 @@ class Max:
             5: (6, 12, 18, 24),
             6: (26, 99, 99, 25)
         }
-        channel_map = {
+    channel_map = {
             # key: channel number, value: (low multiplexer address, high multiplexer address)
             # HPK 5x5 sensor pads are labeled channel 1 - 25. Channel 26 is the bias ring.
             1: (0,0),
@@ -50,23 +48,31 @@ class Max:
             25: (6, 3),
             26: (6, 0)
         }
+    def __init__(self,port=None):
         self.selectError=["channel number out of range","Quitting: Nothing read back","Quitting: Timeout Error on readback","address read back from Arduino doesn't match address sent"]
         
         self.port=port
-        if port is not None: self.ArduinoSerial = open_com( port )
+        self.ArduinoSerial = None
+        if port is not None: self.ArduinoSerial = self.open_com( port )
         else: self.ArduinoSerial = None
         
-        if (ArduinoSerial == -1):
+        if (self.ArduinoSerial == -1):
             raise Exception("Arduino ERROR (COM): couldn't open port ", port )
 
     def connect( self,port ):
-        self.ArduinoSerial = open_com( port )
+        self.ArduinoSerial = self.open_com( port )
         return self.ArduinoSerial != -1
+    
     def getChannel( self,chan ):
-        return_code = select_channel( self.ArduinoSerial, chan )
+        return_code = self.select_channel( self.ArduinoSerial, chan )
         if return_code is None: return None
         else: raise Exception( "Arduino ERROR (CHAN):",self.selectError[return_code] )
-
+        
+    def getGroup( self,group ):
+        return_code = self.select_channel_group( self.ArduinoSerial, group )
+        if return_code is None: return None
+        else: raise Exception( "Arduino ERROR (CHAN):",self.selectError[return_code] )
+        
     def open_com( self,port ):
         #open COM port with 5 second timeout
         try:
@@ -78,12 +84,56 @@ class Max:
         #print(ArduinoSerial)
         return ArduinoSerial
 
-    def select_channel( self,ArduinoSerial, channel_no ):
+    def write(self, string):
+        if self.ArduinoSerial is not None:
+            self.ArduinoSerial.write(string)
+        else:
+            print("Please setup the arduino before writing to it.")
+            
+    def select_channel_group(self, ArduinoSerial, mux_address):
+        #convert mux address (in Unicode string) to integer
+        a = int(mux_address)
+        if (a<0 or a>6):
+            sys.exit(5)
+        #convert integer into packed binary.  
+        # ">" indicateds "big-endian" bit order
+        # "B" indicates Python integer of one byte size.
+        # this will leave high order bits = 0, which will not effect the result
+        b = struct.pack('>B',a)
+        #display byte to send in hex for debugging
+        #print("byte to send: ", hex(b[0]) )     
+        #write to Arduino
+        ArduinoSerial.write(b)
+        # arduino will do a serial.read() and put result into an integer variable
+        #arduino will send the byte it received back as confirmation that the address was received
+        # it will then separate out the address bits and update digital outputs if needed.
+        # arduino also handles multiplexer enable lines locally.  
+        try:
+            x = ArduinoSerial.read()
+            #if the Arduino doesn't answer immediately, serial read returns nothing and
+            # program proceeds to next instruction.  Timeout set to 5 seconds doesn't make
+            # a difference, so there should never be timeout errors.  
+            if(x == b''):  # i.e. if nothing read back
+               sys.exit(2)
+        except TimeoutError:
+            sys.exit(3)
+        #print byte received for debugging
+        #print("byte received :", hex(x[0]) )
+        # if byte read back is different from byte sent, halt and catch fire
+        if (x != b):
+            # for debugging
+            #print("error:  byte sent: ",hex(f[0]) ," byte received: ", hex(x[0]) )
+            sys.exit(4)
+        #else: print("Correct bits received from Arduino")
+        #return tuple containing channel numbers
+            
+    def select_channel( self,ArduinoSerial, channel_no=None, mux=None ):
         #convert channel number (in Unicode string) to integer
         a = int(channel_no)
         if (a < 1 or a > 26):
             return 1
             # lookup low and high multiplexer addresses for the channel
+        
         b = self.channel_map[a]
         # print multiplexer addresses for debugging
         #print("corresponding addresses: ", b)

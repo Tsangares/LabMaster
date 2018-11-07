@@ -333,7 +333,6 @@ class Agilent4155C(Instrument):
         #Configuring the measurement
         self.setPrefix(":PAGE:MEAS:%s:CONS:SMU%s"%(self.mode,channel))
         self.prefixWrite("SOURce %s"%current) #in 100mA
-        self.prefixWrite("COMPliance %.10f"%compliance)
         if abs(compliance) > 100:
             print("Compliance too big, must be below 100 V, above -100V")
         else:

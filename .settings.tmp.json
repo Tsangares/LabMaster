@@ -1,1 +1,1 @@
-{"state": "Read Current", "email": "wwyatt@ucsc.edu", "filename": "test", "startVolt": "0", "endVolt": "-1", "steps": "10", "kcomp": "0", "holdTime": "0", "measDelay": "0", "measTime": "0", "nChan": "6", "comp1": "0", "comp2": "0", "comp3": "0", "comp4": "0"}
+{"state": "Read Voltage", "email": "wwyatt@ucsc.edu", "filename": "FirstProbeCard", "startVolt": "0", "endVolt": "-100", "steps": "50", "kcomp": ".001", "holdTime": ".5", "measDelay": ".02", "measTime": ".5", "nChan": "4", "com": "4", "repeat": "10", "comp1": "15", "comp2": "15", "comp3": "15", "comp4": "15"}

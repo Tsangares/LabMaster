@@ -60,6 +60,8 @@ class MainMenu(MenuWindow):
             {'name': 'Agilent Measurement Delay',  'key': 'measDelay'},
             {'name': 'Agilent Measurement Time',   'key': 'measTime'},
             {'name': 'Number of Channels',   'key': 'nChan'},
+            {'name': 'Arduino COM port number',   'key': 'com'},
+            {'name': 'Average value over N samples', 'key': 'repeat'},
         ]
         for i in range(1,5):
             options.append({'name': 'Agilent Compliance for Chan %d'%i, 'key': 'comp%d'%i})
@@ -75,8 +77,6 @@ class Gui(QApplication):
 
     def __init__(self):
         super(Gui,self).__init__(['Multi-Channel DAQ'])
-        self.processes=[]
-        self.detail=None
         self.window = MainMenu()
         self.window.onExperiment.connect(self.startExperiment)
         self.aboutToQuit.connect(self.window.exit)
@@ -88,5 +88,11 @@ class Gui(QApplication):
             data = self.window.getData()
             self.window.close()
             self.window = Daq(data)
+            self.window.onFinish.connect(reset)
+    def reset(self):
+        self.window = MainMenu()
+        self.window.onExperiment.connect(self.startExperiment)
+        self.aboutToQuit.connect(self.window.exit)
+        
 gui=Gui()
 

@@ -5,7 +5,7 @@ import time
 from time import sleep
 import matplotlib.pyplot as plt
 from threading import Thread
-from LabMaster_plotting import *
+
 from emailbot import *
 import urllib, base64
 import json

@@ -43,7 +43,7 @@ class Saveable(QMainWindow,ValueHandler):
     onLoad = pyqtSignal(str)
     onSave = pyqtSignal(str)
 
-    def saveSettings(self, filename=".settings.json"):
+    def saveSettings(self, filename=".settings.tmp.json"):
         saveData=json.dumps(self.getData())
         with open(filename, "w") as f:
             f.write(saveData)
@@ -56,7 +56,7 @@ class Saveable(QMainWindow,ValueHandler):
     def exit(self):
         self.saveSettings(filename=".settings.tmp.json")
     
-    def loadSettings(self,filename=".settings.json"):
+    def loadSettings(self,filename=".settings.tmp.json"):
         data=None
         try:
             with open(filename) as f:
@@ -107,7 +107,7 @@ class MenuWindow(Stateful):
         super(MenuWindow,self).__init__()
         self.states=states
         self.toolbar = QToolBar()
-        self.addToolBar(self.toolbar)
+        #self.addToolBar(self.toolbar)
         self.buildToolBar()
 
     #Call refreshToolbar when the state changes.
