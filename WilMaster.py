@@ -54,6 +54,7 @@ class MainMenu(MenuWindow):
             {'name': 'Filename', 'key': 'filename'},
             {'name': 'Start Volt', 'key': 'startVolt'},
             {'name': 'End Volt',   'key': 'endVolt'},
+            {'name': '# of Steps',      'key': 'steps'},
             {'name': 'Keithley Compliance',    'key': 'kcomp'},
             {'name': 'Agilent Hold Time',      'key': 'holdTime'},
             {'name': 'Agilent Measurement Delay',  'key': 'measDelay'},
