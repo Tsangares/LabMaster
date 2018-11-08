@@ -52,19 +52,20 @@ class MainMenu(MenuWindow):
         options=[
             {'name': 'Email', 'key': 'email'},
             {'name': 'Filename', 'key': 'filename'},
-            {'name': 'Start Volt', 'key': 'startVolt'},
-            {'name': 'End Volt',   'key': 'endVolt'},
-            {'name': '# of Steps',      'key': 'steps'},
-            {'name': 'Keithley Compliance',    'key': 'kcomp'},
-            {'name': 'Agilent Hold Time',      'key': 'holdTime'},
-            {'name': 'Agilent Measurement Delay',  'key': 'measDelay'},
-            {'name': 'Agilent Measurement Time',   'key': 'measTime'},
-            {'name': 'Number of Channels',   'key': 'nChan'},
+            {'name': 'Start Volt (V)', 'key': 'startVolt'},
+            {'name': 'End Volt (V)',   'key': 'endVolt'},
+            {'name': 'Steps',      'key': 'steps'},
+            {'name': 'Keithley Compliance (A)',    'key': 'kcomp'},
+            {'name': 'Agilent Hold Time (sec)',      'key': 'holdTime'},
+            {'name': 'Agilent Measurement Delay (sec)',  'key': 'measDelay'},
+            {'name': 'Agilent Measurement Time (sec)',   'key': 'measTime'},
+            {'name': 'Number of Channels (1 or 4)',   'key': 'nChan'},
             {'name': 'Arduino COM port number',   'key': 'com'},
             {'name': 'Average value over N samples', 'key': 'repeat'},
+            {'name': 'Resistance (Ohms)', 'key': 'resistance'},
         ]
         for i in range(1,5):
-            options.append({'name': 'Agilent Compliance for Chan %d'%i, 'key': 'comp%d'%i})
+            options.append({'name': 'Agilent Compliance for Chan %d (V)'%i, 'key': 'comp%d'%i})
         return options
     
     #Connects gui to the experiments code.
