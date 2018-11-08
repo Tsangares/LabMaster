@@ -23,7 +23,8 @@ def getChan(chan):
         20:'6' , 19:'A' , 18:'1' , 17:'24', 16:'19',
         15:'F' , 14:'B' , 13:'12', 12:'23', 11:'V' ,
         10:'7' ,  9:'11',  8:'13',  7:'14',  6:'18',
-         5:'H' ,  4:'M' ,  3:'N' ,  2:'P' ,  1:'U' , 99: 'pass-empty', 26: 'pass-guard',
+         5:'H' ,  4:'M' ,  3:'N' ,  2:'P' ,  1:'U' ,
+        99: 'pass-empty', 26: 'pass-guard',
     }
     return map[chan]
 
@@ -63,6 +64,7 @@ class DaqProtocol(QThread):
 
     def configureAglient(self, kwargs):
         self.agilent.setSamplingMode()
+        self.agilent.setLong()
         if int(kwargs['nChan']) < 0 or int(kwargs['nChan']) > 4:
             raise Exception("ERROR: Please set number of channels between 0 and 4!")
         for i in range(1,int(kwargs['nChan'])+1):
@@ -92,30 +94,34 @@ class DaqProtocol(QThread):
         steps=int(kwargs['steps'])+1
         step=(endVolt-startVolt)/steps
         voltages=list(linspace(startVolt,endVolt,steps))
-        calibration=
-        results=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'],int(kwargs['repeat']),kwargs['nChan'])
-        #print("This is the data aquired: ",results)
-        if not DEBUG and KEITHLEY: self.keithley.powerDownPSU()
+        calibration=self.aquireLoop(0,1,0,kwargs['measTime'],100,kwargs['nChan'])[0]
+        measured=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'],int(kwargs['repeat']),kwargs['nChan'])
+        print('MEAS',measured,'CAL',calibration)
+        calculated=[]
         output={'V': voltages}
-        for result in results:
-            for key,value in result.items():
+        
+        #Please note list[::-1] will reverse a list
+        for meas in measured[::-1]:
+            for chan,volt in meas.items():
                 try:
-                    output[key]
+                    output[chan]
                 except KeyError:
-                    output[key]=[]
-                output[key].append(value)
+                    output[chan]=[]
+                output[chan].append((volt-calibration[chan])/float(kwargs['resistance']))
+
+        if not DEBUG and KEITHLEY: self.keithley.powerDownPSU()
         #Possibly calculate leakage later?
         return output
 
     def checkCompliance(self,meas):
         return False
 
-    def aquireLoop(self,volt,step,limit,measTime,repeat=1,delay=1,nChan=4,):
-        if startVolt-endVolt == 0 and step
+    def aquireLoop(self,volt,step,limit,measTime,repeat=1,nChan=4,delay=.01):
         self.log("Setting keithley to %.02e"%volt)
         self.log("Step is %.02e; while limit is %.02e"%(step,limit))
-        if not DEBUG and KEITHLEY: self.keithley.set_output(volt)
-        time.sleep(int(delay))
+        if not DEBUG and KEITHLEY and not (volt==0 and limit==0):
+            self.keithley.set_output(volt)
+        time.sleep(float(delay))
         
         switchboard = True
         if(nChan == 1): mode = 'single'
@@ -132,7 +138,7 @@ class DaqProtocol(QThread):
                     if not DEBUG: time.sleep(1)
                     cache={}
                     for i in range(repeat):
-                        currentMeas=self.getMeasurement(2,measTime,channels)
+                        currentMeas=self.getMeasurement(1,measTime,channels)
                         for key,val in currentMeas.items():
                             try:
                                 cache[key]
