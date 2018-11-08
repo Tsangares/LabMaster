@@ -59,7 +59,7 @@ class MainMenu(MenuWindow):
             {'name': 'Agilent Hold Time (sec)',      'key': 'holdTime'},
             {'name': 'Agilent Measurement Delay (sec)',  'key': 'measDelay'},
             {'name': 'Agilent Measurement Time (sec)',   'key': 'measTime'},
-            {'name': 'Number of Channels (1 or 4)',   'key': 'nChan'},
+            {'name': '# of Channels (1 or 4)',   'key': 'nChan'},
             {'name': 'Arduino COM port number',   'key': 'com'},
             {'name': 'Average value over N samples', 'key': 'repeat'},
             {'name': 'Resistance (Ohms)', 'key': 'resistance'},
