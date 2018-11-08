@@ -75,14 +75,14 @@ class DaqProtocol(QThread):
         #TODO: Check to see if casting caused errors.
         self.keithley.configure_measurement(1, 0, float(kwargs['kcomp']))
 
-    def getMeasurement(self,samples,duration,channels=None,prefix=0):
+    def getMeasurement(self,samples,duration,channels=None):
         if DEBUG: return {"chan%d"%(i): random()*i for i in range(1,5)}
         agilentData=self.agilent.read(samples,duration)
         agilent={ getChan(channels[int(key[-1])-1]): value[-1] for key,value in agilentData.items() }
         
         if KEITHLEY:
             keithley=self.keithley.get_current() #float
-            agilent['keithley%d'%prefix]=keithley
+            agilent['keithley']=keithley
         return agilent
         
     def collectData(self, kwargs):
