@@ -23,7 +23,7 @@ def writeExcel(data,filename,time=True):
     #Get parameters
     #assuming data is map key of variables, place them all into a grid.
     column=0
-    for key,values in sorted(list(data.items()), key=lambda item: item[0]!='V'):
+    for key,values in sorted(list(data.items()), key=lambda item: item[0]!='Voltage'):
         worksheet.write(0,column,key)
         for i,value in enumerate(values):
             worksheet.write(i+1,column,float(value)) #i+1 because the title is above

@@ -15,7 +15,7 @@ from Arduino import Max
 from Excel import writeExcel
 import statistics as stat
 from emailbot import send_mail
-DEBUG=True
+DEBUG=False
 KEITHLEY=False
 def getChan(chan):
     map={
@@ -29,15 +29,17 @@ def getChan(chan):
     return map[chan]
 
 class DaqProtocol(QThread):
-    newSample = pyqtSignal(dict)
-    onLog = pyqtSignal(str)
+    newSample = pyqtSignal(tuple)
+    onLog = pyqtSignal(tuple)
     onFinish = pyqtSignal(dict)
+    onClearPlot = pyqtSignal(str)
     def __init__(self,options,widget=None):
         super(DaqProtocol,self).__init__(widget)
         self.options=options
+        self.calibration={}
 
-    def log(self,string):
-        self.onLog.emit(str(string))
+    def log(self,*args):
+        self.onLog.emit(args)
         
     def run(self):
         options=self.options
@@ -91,15 +93,16 @@ class DaqProtocol(QThread):
         delay=.1
         startVolt=float(kwargs['startVolt'])
         endVolt=float(kwargs['endVolt'])
-        steps=int(kwargs['steps'])+1
-        step=(endVolt-startVolt)/steps
+        steps=int(kwargs['steps'])
+        step=(endVolt-startVolt)/steps+1
         voltages=list(linspace(startVolt,endVolt,steps))
-        calibration=self.aquireLoop(0,1,0,kwargs['measTime'],100,kwargs['nChan'])[0]
-        measured=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'],int(kwargs['repeat']),kwargs['nChan'])
-        print('MEAS',measured,'CAL',calibration)
+        self.log("STARTING CALIBRATION")
+        self.calibration=self.aquireLoop(0,None,None,kwargs['measTime'],int(kwargs['repeat']),kwargs['nChan'])[0]
+        self.onClearPlot.emit("clear")
+        self.log("ENDING CALIBRATION")
+        measured=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'],1,kwargs['nChan'])
         calculated=[]
-        output={'V': voltages}
-        
+        output={'Voltage': voltages}
         #Please note list[::-1] will reverse a list
         for meas in measured[::-1]:
             for chan,volt in meas.items():
@@ -107,19 +110,24 @@ class DaqProtocol(QThread):
                     output[chan]
                 except KeyError:
                     output[chan]=[]
-                output[chan].append((volt-calibration[chan])/float(kwargs['resistance']))
-
+                output[chan].append(volt)
         if not DEBUG and KEITHLEY: self.keithley.powerDownPSU()
         #Possibly calculate leakage later?
         return output
 
+    def getResistance(self,chan=None):
+        return float(self.options['resistance'])
+    
     def checkCompliance(self,meas):
         return False
 
-    def aquireLoop(self,volt,step,limit,measTime,repeat=1,nChan=4,delay=.01):
+    def aquireLoop(self,volt,step,limit,measTime,repeat=1,nChan=4,delay=.1):
+        if limit is not None and abs(volt) >= abs(limit):
+            self.log("Last voltage measured, ending data collection.")
+            return []
         self.log("Setting keithley to %.02e"%volt)
-        self.log("Step is %.02e; while limit is %.02e"%(step,limit))
-        if not DEBUG and KEITHLEY and not (volt==0 and limit==0):
+        if limit is not None: self.log("Step is %.02e; while limit is %.02e; currently at %.02e"%(step,limit,volt))
+        if not DEBUG and KEITHLEY and limit is not None:
             self.keithley.set_output(volt)
         time.sleep(float(delay))
         
@@ -131,6 +139,7 @@ class DaqProtocol(QThread):
         if switchboard:
             #self.arduino.channel_map
             if mode == 'group':
+                if repeat > 1 : self.log("Taking %d measurements on each mux to average."%repeat)
                 for mux in range(0,7):
                     if not DEBUG: self.arduino.getGroup(mux)
                     channels=Max.reverse_map[mux]
@@ -138,19 +147,24 @@ class DaqProtocol(QThread):
                     if not DEBUG: time.sleep(1)
                     cache={}
                     for i in range(repeat):
+                        if i < repeat and repeat is not 1: self.log("On sample %d out of %d. %2d%%"%(i,repeat,100.0*i/repeat))
                         currentMeas=self.getMeasurement(1,measTime,channels)
-                        for key,val in currentMeas.items():
+                        for chan,val in currentMeas.items():
                             try:
-                                cache[key]
+                                cache[chan]
                             except KeyError:
-                                cache[key]=[]
-                            cache[key].append(val)
+                                cache[chan]=[]
+                            try:
+                                self.calibration[chan]
+                            except KeyError:
+                                self.calibration[chan]=0
+                            amps=val/self.getResistance(chan)-self.calibration[chan]
+                            cache[chan].append(amps)
+                            self.log("Chan %s reads %.03e A"%(chan,amps))
                     cache={key: stat.mean(vals) for key,vals in cache.items()}
-                    self.newSample.emit(cache)
+                    if repeat is 1: self.newSample.emit((volt,cache))
                     meas={**meas, **cache}
-                    #print(meas)
                 output.append(meas)
-                    
             elif mode == 'single':
                 for chan, value in self.arduino.channel_map:
                     self.arduino.getChannel(chan)
@@ -162,14 +176,15 @@ class DaqProtocol(QThread):
             meas=self.getMeasurement(2,measTime)
             self.newSample.emit(currentMeas)
             output.append(meas)
-            
-        if abs(volt) >= abs(limit):
-            self.log("Last voltage measured, ending data collection.")
-            return [meas]
+        if limit is None:
+            print("RETURN")
+            return output
         elif (limit-volt)/step > 3 and self.checkCompliance(meas):
-            return self.aquireLoop(volt+step,step,volt+step*2,measTime,repeat,nChan)+output
+            print("Compliance congition")
+            return self.aquireLoop(volt+step,step,volt+step*2,measTime,repeat,nChan,delay)+output
         else:
-            return self.aquireLoop(volt+step,step,limit,measTime,repeat,nChan)+output
+            print("Acquidition cycle ended, repeating...")
+            return self.aquireLoop(volt+step,step,limit,measTime,repeat,nChan,delay)+output
     
     #returns the second item in this weird format.
     def skipMeasurements(result, skip):
@@ -198,6 +213,7 @@ class MultiChannelDaq(DetailWindow):
         self.thread=DaqProtocol(options,self.mainWidget)
         self.thread.newSample.connect(self.addPoint)
         self.thread.onLog.connect(self.log)
+        self.thread.onClearPlot.connect(self.clearPlot)
         self.thread.onFinish.connect(self.finalizeData)
         self.thread.start()
 
@@ -210,5 +226,6 @@ class MultiChannelDaq(DetailWindow):
         files.append((imgdata.getbuffer(), "log"))
         send_mail(filename,self.options['email'],files=files)
         self.onFinish.emit('done')
+        self.close()
 
 

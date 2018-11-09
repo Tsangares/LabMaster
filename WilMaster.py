@@ -89,8 +89,8 @@ class Gui(QApplication):
             data = self.window.getData()
             self.window.close()
             self.window = Daq(data)
-            self.window.onFinish.connect(reset)
-    def reset(self):
+            self.window.onFinish.connect(self.restore)
+    def restore(self,msg):
         self.window = MainMenu()
         self.window.onExperiment.connect(self.startExperiment)
         self.aboutToQuit.connect(self.window.exit)

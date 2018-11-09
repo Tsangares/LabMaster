@@ -31,7 +31,8 @@ class DetailWindow(QMainWindow):
         scroll=QScrollArea()
         output=QWidget()
         scroll.setWidgetResizable(True)
-        scroll.setFixedHeight(600)
+        scroll.setMinimumHeight(500)
+        scroll.setMinimumWidth(400)
         scroll.setWidget(output)
         layout=QFormLayout(output)
         self.output=layout
@@ -52,13 +53,24 @@ class DetailWindow(QMainWindow):
         self.testJumple()
         return canvas,figure
             
-    def log(self,text):
-        self.output.insertRow(0,QLabel("%.02f"%(time.time()%100)),QLabel(str(text)))
+    def log(self,*args):
+        text=""
+        if len(args) == 1 and type(args[0]) == tuple: args=args[0]
+        for arg in args: text+=" %s"%str(arg)
+        self.output.insertRow(0,QLabel("%.02f"%(time.time()%10000)),QLabel(text))
 
     #All on one plot.
+        #Assuming a point is of the form (float,key:float)
     def addPoint(self,point):
         self.fig.clear()
-        for key,item in point.items():
+        x=point[0]
+        y=point[1]
+        try:
+            self.cache['volts']
+        except KeyError:
+            self.cache['volts']=set()
+        self.cache['volts'].add(x)
+        for key,item in y.items():
             if 'pass' in key: continue
             try:
                 self.cache[key]
@@ -66,10 +78,17 @@ class DetailWindow(QMainWindow):
                 self.cache[key]=[]
             self.cache[key].append(item)
         for key,item in self.cache.items():
-            x=range(len(self.cache[key]))
-            self.fig.plot(x,self.cache[key],label=key)
+            if key == 'volts': continue
+            #xaxis=range(len(self.cache[key]))
+            self.fig.plot(list(self.cache['volts'])[:len(self.cache[key])],self.cache[key],label=key)
         self.fig.legend()
+        print(list(self.cache['volts']))
         self.canvas.draw()
+
+    def clearPlot(self,msg=None):
+        self.cache={}
+        print("cleared")
+        
         
     ''' #This is for every data point on its own plot.
     def addPoint(self,point):
