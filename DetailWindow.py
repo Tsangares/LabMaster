@@ -78,9 +78,11 @@ class DetailWindow(QMainWindow):
                 self.cache[key]=[]
             self.cache[key].append(item)
         for key,item in self.cache.items():
-            if key == 'volts': continue
+            if key == 'volts' : continue
             #xaxis=range(len(self.cache[key]))
-            self.fig.plot(list(self.cache['volts'])[:len(self.cache[key])],self.cache[key],label=key)
+            #print(self.cache['volts'],self.cache[key])
+            voltages=sorted(list(self.cache['volts'])[:len(self.cache[key])])[::-1]
+            self.fig.plot(voltages,self.cache[key],label=key)
         self.fig.legend()
         print(list(self.cache['volts']))
         self.canvas.draw()

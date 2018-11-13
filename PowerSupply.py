@@ -35,8 +35,8 @@ class PowerSupplyFactory(Instrument):
 
 
 class Keithley2657a(PowerSupplyFactory):
-
-    def __init__(self, gpib_address=24):
+    # default address was 24, I changed it to 1 m.w. 11/9/18
+    def __init__(self, gpib_address=1):
         #super(Keithley2657a,self).__init__()
         """
         Initializer for Keithley power supply
