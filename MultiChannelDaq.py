@@ -6,7 +6,7 @@ from random import random
 from DetailWindow import DetailWindow
 from io import BytesIO
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel,QPushButton
 import json, time
 from threading import Thread
 from multiprocessing import Process
@@ -15,8 +15,8 @@ from Arduino import Max
 from Excel import writeExcel
 import statistics as stat
 from emailbot import send_mail
-DEBUG=False
-KEITHLEY=True
+DEBUG=True
+KEITHLEY=False
 def getChan(chan):
     map={
         25:'E' , 24:'2' , 23:'BB', 22:'AA', 21:'W' ,
@@ -26,22 +26,40 @@ def getChan(chan):
          5:'H' ,  4:'M' ,  3:'N' ,  2:'P' ,  1:'U' ,
         99: 'pass-empty', 26: 'pass-guard',
     }
-    return map[chan]
+    try:
+        return 'Ch%s'%int(map[chan])
+    except ValueError:
+        return map[chan]
+    
 
 class DaqProtocol(QThread):
     newSample = pyqtSignal(tuple)
     onLog = pyqtSignal(tuple)
     onFinish = pyqtSignal(dict)
     onClearPlot = pyqtSignal(str)
+    onCalibrationDone = pyqtSignal(str)
+    onEmergencyStop = pyqtSignal(str)
+    
     def __init__(self,options,widget=None):
         super(DaqProtocol,self).__init__(widget)
         self.options=options
         self.calibration={}
-
+        self.calibrated=False
+        self.emergencyStop=False
+        self.onEmergencyStop.connect(self.initEmergencyStop)
+                                     
+    def initEmergencyStop(self,msg=None):
+        print("Emergency Stop Initialized")
+        self.log("Emergency Stop Initialized")
+        self.emergencyStop=True
+        
     def log(self,*args):
         self.onLog.emit(args)
         
     def run(self):
+        if self.calibrated:
+            self.collectData(self.options)
+            return
         options=self.options
         #Connect to instruments
         port = 0
@@ -54,12 +72,15 @@ class DaqProtocol(QThread):
             self.configureAglient(options)
             self.arduino = Max("COM%s"%options['com'])
         self.log("Starting data collection")
-        data=self.collectData(options) #In the format of {'key': [values...]}
-        self.onFinish.emit(data)
-        #calculate the current form voltage if using switch board
+        
+        self.log("STARTING CALIBRATION")
+        self.calibration=self.aquireLoop(0,None,None,self.options['measTime'],int(self.options['repeat']),self.options['nChan'])[0]
+        self.onClearPlot.emit("clear")
+        self.log("ENDING CALIBRATION")
+        
+        self.calibrated=True
+        self.onCalibrationDone.emit('done')
         #calculate leakage
-        #plots
-        #send_email(filename,email,files
             
     def getPoint(self):
         return [random(),random(),random(),random()]
@@ -81,7 +102,9 @@ class DaqProtocol(QThread):
         self.keithley.configure_measurement(1, 0, float(kwargs['kcomp']))
 
     def getMeasurement(self,samples,duration,channels=None,index=None):
-        if DEBUG: return {"chan%d"%(i): random()*i for i in range(1,5)}
+        if DEBUG:
+            time.sleep(.2)
+            return {"chan%d"%(i+4*index): random()*i for i in range(1,5)}
         agilentData=self.agilent.read(samples,duration)
         agilent={ getChan(channels[int(key[-1])-1]): value[-1] for key,value in agilentData.items() }
         
@@ -91,17 +114,14 @@ class DaqProtocol(QThread):
         return agilent
         
     def collectData(self, kwargs):
+        self.log("Started data collection.".upper())
+        print("Started data collection.")
         delay=.1
         startVolt=float(kwargs['startVolt'])
         endVolt=float(kwargs['endVolt'])
         steps=int(kwargs['steps'])
         step=(endVolt-startVolt)/float(steps)
         voltages=list(linspace(startVolt,endVolt,steps+1))
-        print(startVolt,endVolt,steps,step)
-        self.log("STARTING CALIBRATION")
-        self.calibration=self.aquireLoop(0,None,None,kwargs['measTime'],int(kwargs['repeat']),kwargs['nChan'])[0]
-        self.onClearPlot.emit("clear")
-        self.log("ENDING CALIBRATION")
         measured=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'],1,kwargs['nChan'])
         calculated=[]
         output={'Voltage': voltages}
@@ -115,15 +135,22 @@ class DaqProtocol(QThread):
                 output[chan].append(volt)
         if not DEBUG and KEITHLEY: self.keithley.powerDownPSU()
         #Possibly calculate leakage later?
-        return output
+        if self.emergencyStop: print("Emergency Stop Successful.")
+        self.onFinish.emit(output)
+
 
     def getResistance(self,chan=None):
         return float(self.options['resistance'])
     
     def checkCompliance(self,meas):
         return False
-
+    def saveDataToFile(self, data):
+        filename=self.options['filename']
+        with open('./json/%s.json'%filename ,'w+') as f:
+            f.write(json.dumps(data))
+        
     def aquireLoop(self,volt,step,limit,measTime,repeat=1,nChan=4,delay=.1):
+        if self.emergencyStop: return []
         if limit is not None and abs(volt) >= abs(limit):
             self.log("Last voltage measured, ending data collection.")
             return []
@@ -144,6 +171,7 @@ class DaqProtocol(QThread):
             if mode == 'group':
                 if repeat > 1 : self.log("Taking %d measurements on each mux to average."%repeat)
                 for mux in range(0,7): #7
+                    if self.emergencyStop: return []
                     if not DEBUG: self.arduino.getGroup(mux)
                     channels=Max.reverse_map[mux]
                     self.log("Set mux to %d, reading channels: %s"%(mux,channels))
@@ -165,7 +193,6 @@ class DaqProtocol(QThread):
                             cache[chan].append(amps)
                             self.log("Chan %s reads %.03e A"%(chan,amps))
                     cache={key: stat.mean(vals) for key,vals in cache.items()}
-                    print("Emitting", volt,cache)
                     if repeat is 1 and limit is not None: self.newSample.emit((volt,cache))
                     meas={**meas, **cache}
                 output.append(meas)
@@ -180,7 +207,7 @@ class DaqProtocol(QThread):
             meas=self.getMeasurement(2,measTime)
             self.newSample.emit(currentMeas)
             output.append(meas)
-        print("step size",step)
+        self.saveDataToFile(output)
         if limit is None:
             print("RETURN")
             return output
@@ -188,9 +215,9 @@ class DaqProtocol(QThread):
             print("Compliance congition")
             return self.aquireLoop(volt+step,step,volt+step*2,measTime,repeat,nChan,delay)+output
         else:
-            print("Acquidition cycle ended, repeating...")
+            print("Acquisition cycle on volt %.02e ended, continuing..."%float(volt))
             return self.aquireLoop(volt+step,step,limit,measTime,repeat,nChan,delay)+output
-    
+
     #returns the second item in this weird format.
     def skipMeasurements(result, skip):
         output={}
@@ -220,16 +247,32 @@ class MultiChannelDaq(DetailWindow):
         self.thread.onLog.connect(self.log)
         self.thread.onClearPlot.connect(self.clearPlot)
         self.thread.onFinish.connect(self.finalizeData)
+        self.thread.onCalibrationDone.connect(self.afterCalibration)
         self.thread.start()
-
+        
+    def afterCalibration(self,msg=None):
+        start=QPushButton("Start")
+        self.menuLayout.insertRow(0,start)
+        start.clicked.connect(self.startExperiment)
+        
+    def startExperiment(self,msg=None):
+        shutdown=QPushButton("Force Shutdown")
+        shutdown.clicked.connect(lambda: self.thread.onEmergencyStop.emit('stop'))
+        self.menuLayout.removeRow(0)
+        self.menuLayout.insertRow(0,shutdown)
+        self.thread.start()
+        
     def finalizeData(self,data):
         files=[]
         filename=writeExcel(data,self.options['filename'])
+        print("Wrote excel.")
         imgdata = BytesIO()
         self.figure.savefig(imgdata, format='png')
         imgdata.seek(0)
         files.append((imgdata.getbuffer(), "log"))
+        print("Saved plot.")
         send_mail(filename,self.options['email'],files=files)
+        print("Sent mail.")
         self.onFinish.emit('done')
         self.close()
 

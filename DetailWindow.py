@@ -24,7 +24,9 @@ class DetailWindow(QMainWindow):
         self.mainWidget=QSplitter()
         self.setCentralWidget(self.mainWidget)
         layout=QHBoxLayout(self.mainWidget)
-        layout.addWidget(self.getMenu())        
+        menu,menuLayout=self.getMenu()
+        self.menuLayout=menuLayout
+        layout.addWidget(menu)        
         layout.addWidget(canvas)
             
     def getOutputBox(self):
@@ -41,11 +43,8 @@ class DetailWindow(QMainWindow):
     def getMenu(self):
         menu=QWidget()
         layout=QFormLayout(menu)
-        btn=QPushButton("Force Shutdown")
-        btn.clicked.connect(lambda: self.log('pushed'))
-        layout.addWidget(btn)
-        layout.addWidget(self.getOutputBox())
-        return menu
+        layout.addRow(self.getOutputBox())
+        return menu,layout
         
     def getCanvas(self):
         figure=plt.figure()
@@ -82,9 +81,11 @@ class DetailWindow(QMainWindow):
             #xaxis=range(len(self.cache[key]))
             #print(self.cache['volts'],self.cache[key])
             voltages=sorted(list(self.cache['volts'])[:len(self.cache[key])])[::-1]
-            self.fig.plot(voltages,self.cache[key],label=key)
+            try:
+                self.fig.plot(voltages,self.cache[key],label=key)
+            except ValueError:
+                print("could not plot.len(x)!=len(y)",voltages,self.cache[key])
         self.fig.legend()
-        print(list(self.cache['volts']))
         self.canvas.draw()
 
     def clearPlot(self,msg=None):
