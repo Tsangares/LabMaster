@@ -8,7 +8,17 @@ from multiprocessing import Process
 from queue import Queue
 from random import random
 
+"""
+This is supposed to be an abstract class,
+that should be implemented by the child for the intended experiemt.
+Currently the addPoint class is drastically too unique to be abstract.
 
+TODO: Move addPoint to the inherited class.
+
+A Detail Window had a log functionality & a scroll window for the log.
+It also has a multi-subplot matplotlib canvas, and a custom menu section.
+ - WCW 181127
+"""
 
 class DetailWindow(QMainWindow):
     def __init__(self):

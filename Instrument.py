@@ -1,6 +1,7 @@
 import visa
 
 #This is used to connect to devices using gpib
+#The Instrument class should be inherited into a device specific class (see Agilent4155C)
 class Instrument:
     def __init__(self):
         self.inst=None

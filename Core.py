@@ -1,3 +1,16 @@
+"""
+This Core.py files contains several helpful classes,
+in the context of the UI builder pyQt5.
+
+TimeSensitive - Enables a simple time keeping & printing
+ValueHandler - Makes getting data from a GUI's form easier.
+Saveable - Allows the GUI to save & load from a .json file.
+Stateful - Uses Qt events to simply keep track of a state variable (for page changes, this can be used to make reusable fields in a UI).
+MenuWindow - Implements all of these classes into an abstract class to be used to a specific menu.
+ - WCW 181127
+"""
+
+
 import time,json
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -77,7 +90,13 @@ class Saveable(QMainWindow,ValueHandler):
     def loadAutosave(self):
         self.loadSettings(filename=".settings.tmp.json")
 
-
+"""
+The purpose of Stateful is subtle.
+There are commonly 4 experiments that use 90% of the same config parameters,
+but each experiement is unique & had special parameters.
+State can perserve the common parameters and create new, unique fields for specific experiments.
+See addStateButton() in MenuWindow for more clarity.
+"""
 class Stateful(Saveable):
     onStateChange = pyqtSignal(str)
     def __init__(self):

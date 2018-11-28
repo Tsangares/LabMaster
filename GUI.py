@@ -1,5 +1,9 @@
 # coding: utf-8
-
+"""
+Contains a MainMenu, with all of the configuaration variables defined.
+The Gui class simple instantiates the MainMenu and handles window switching.
+ - WCW 181127
+"""
 import time,threading
 import platform as platform
 import json
@@ -11,8 +15,6 @@ from PowerSupply import PowerSupplyFactory
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import pyplot as plt
 
-from LabMaster_save import *
-from LabMaster_duo import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from multiprocessing import Process
@@ -24,7 +26,7 @@ from Core import MenuWindow
 from DetailWindow import DetailWindow
 from MultiChannelDaq import MultiChannelDaq as Daq
 
-#TODO: Seperate Gui into a mainmenu and a Gui class.
+
 class MainMenu(MenuWindow):
     onExperiment = pyqtSignal(str)
     def __init__(self):

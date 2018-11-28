@@ -1,3 +1,15 @@
+"""
+This is the beast of the multi-channel reading experiment.
+Use DEBUG & KEITHLEY to enable and disable testing & debug
+When DEBUG is true, no attempt will be made to access visa/gpib devices.
+But to be sure ALWAYS disable KEITHLEY when testing.
+Dont kill someone by applying a voltage by accident!
+
+When KEITHLEY=False, no voltage will be applied,
+but currents from the agilent will be read.
+ - WCW 181127
+"""
+
 from queue import Queue
 from PowerSupply import *
 from Agilent import Agilent4155C
@@ -15,8 +27,9 @@ from Arduino import Max
 from Excel import writeExcel
 import statistics as stat
 from emailbot import send_mail
-DEBUG=True
-KEITHLEY=False
+DEBUG=False
+KEITHLEY=True
+
 def getChan(chan):
     map={
         25:'E' , 24:'2' , 23:'BB', 22:'AA', 21:'W' ,
@@ -31,7 +44,8 @@ def getChan(chan):
     except ValueError:
         return map[chan]
     
-
+#All of the main code is put into a seperate thread to allow
+#The UI to not freeze and respond to button clicking like Force Shutdown.
 class DaqProtocol(QThread):
     newSample = pyqtSignal(tuple)
     onLog = pyqtSignal(tuple)
@@ -112,7 +126,8 @@ class DaqProtocol(QThread):
             keithley=self.keithley.get_current() #float
             agilent['keithley%d'%index]=keithley
         return agilent
-        
+
+    #collectData    
     def collectData(self, kwargs):
         self.log("Started data collection.".upper())
         print("Started data collection.")
@@ -148,7 +163,8 @@ class DaqProtocol(QThread):
         filename=self.options['filename']
         with open('./json/%s.json'%filename ,'w+') as f:
             f.write(json.dumps(data))
-        
+
+    #This is a recursive loop that gathers data & calls itself at the next voltage.
     def aquireLoop(self,volt,step,limit,measTime,repeat=1,nChan=4,delay=.1):
         if self.emergencyStop: return []
         if limit is not None and abs(volt) >= abs(limit):
@@ -189,7 +205,10 @@ class DaqProtocol(QThread):
                                 self.calibration[chan]
                             except KeyError:
                                 self.calibration[chan]=0
-                            amps=val/self.getResistance(chan)-self.calibration[chan]
+                            if "keithley" in chan:
+                                amps=val
+                            else:
+                                amps=val/self.getResistance(chan)-self.calibration[chan]
                             cache[chan].append(amps)
                             self.log("Chan %s reads %.03e A"%(chan,amps))
                     cache={key: stat.mean(vals) for key,vals in cache.items()}

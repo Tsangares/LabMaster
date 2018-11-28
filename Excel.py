@@ -9,6 +9,7 @@ import os
 matplotlib.use("TkAgg")
 
 OUTPUT_FOLDER="./excel/"
+#Simply takes the data & writes it to an excel file.
 def writeExcel(data,filename,time=True):
 #    if "Windows" not in platform.platform():
 #        filename = tkFileDialog.asksaveasfilename(initialdir="~", title="Save data", filetypes=(("Microsoft Excel file", "*.xlsx"), ("all files", "*.*")))
