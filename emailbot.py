@@ -34,15 +34,19 @@ def send_mail(attached_file_name, recipients, files=[]):
     #attachFile(email_message,payload=attached_file_name)
     send_email_connection = smtplib.SMTP(SMTP_SERVER)
     send_email_connection.starttls()
-    send_email_connection.login(EMAIL_USERNAME, EMAIL_PASSWORD)
+    try:
+        send_email_connection.login(EMAIL_USERNAME, EMAIL_PASSWORD)
 
-    send_email_connection.sendmail(
-        EMAIL_USERNAME,
-        recipients,
-        email_message.as_string()
-    )
+        send_email_connection.sendmail(
+            EMAIL_USERNAME,
+            recipients,
+            email_message.as_string()
+        )
 
-    send_email_connection.quit()
+        send_email_connection.quit()
+    except Exception:
+        print("Failed to send email, credentials failed.")
+        print("This can also happen when 'new location is detected'")
 
 def attachFile(email,payload=None,name=None,filename=None):
     attach = MIMEBase('application', 'octet-stream')
