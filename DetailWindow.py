@@ -95,7 +95,7 @@ class DetailWindow(QMainWindow):
                 self.fig.plot(voltages,self.cache[key],label=key)
             except ValueError:
                 print("could not plot.len(x)!=len(y)",voltages,self.cache[key])
-        #self.fig.legend() #enables the legend
+        self.fig.legend() #enables the legend
         self.fig.invert_xaxis()
         self.fig.set_xlabel("Voltage (V)")
         self.fig.set_ylabel("Current (A)")
