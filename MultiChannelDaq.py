@@ -27,8 +27,8 @@ from Arduino import Max
 from Excel import writeExcel
 import statistics as stat
 from emailbot import send_mail
-DEBUG=True
-KEITHLEY=False
+DEBUG=False
+KEITHLEY=True
 
 def getChan(chan):
     map={
