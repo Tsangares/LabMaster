@@ -27,8 +27,8 @@ from Arduino import Max
 from Excel import writeExcel
 import statistics as stat
 from emailbot import send_mail
-DEBUG=False
-KEITHLEY=True
+DEBUG=True
+KEITHLEY=False
 
 def getChan(chan):
     map={
@@ -106,7 +106,7 @@ class DaqProtocol(QThread):
         if int(kwargs['nChan']) < 0 or int(kwargs['nChan']) > 4:
             raise Exception("ERROR: Please set number of channels between 0 and 4!")
         for i in range(1,int(kwargs['nChan'])+1):
-            self.agilent.setCurrent(i,0,float(kwargs['comp%d'%i]))
+            self.agilent.setCurrent(i,0,float(kwargs['acomp']))
         self.agilent.setMedium()
         self.agilent.setHoldTime(float(kwargs['holdTime']))
 
@@ -118,7 +118,7 @@ class DaqProtocol(QThread):
     def getMeasurement(self,samples,duration,channels=None,index=None):
         if DEBUG:
             time.sleep(.2)
-            return {"chan%d"%(i+4*index): random()*i for i in range(1,5)}
+            return {"chan%d"%(i+4*index): 100*random()*i**(i*i) for i in range(1,5)}
         agilentData=self.agilent.read(samples,duration)
         agilent={ getChan(channels[int(key[-1])-1]): value[-1] for key,value in agilentData.items() }
         
@@ -154,11 +154,24 @@ class DaqProtocol(QThread):
         self.onFinish.emit(output)
 
 
+    #Get resistance from the GUI options or from file.
     def getResistance(self,chan=None):
+        #Currently only supporting getting from GUI options
+        #The input variable chan here will corespond to the channel
+        #Use lookup table to find this resistance.
         return float(self.options['resistance'])
     
     def checkCompliance(self,meas):
-        return False
+        comp=float(self.options['acomp'])
+        current=abs(comp/self.getResistance() * .98)
+        breached=0
+        for key,val in meas.items():
+            isBreached = abs(val) > current
+            if isBreached: breached += 1
+        proportion=float(breached) / float(len(meas))
+        print(proportion)
+        return proportion > .75
+    
     def saveDataToFile(self, data):
         filename=self.options['filename']
         with open('./json/%s.json'%filename ,'w+') as f:
@@ -230,9 +243,9 @@ class DaqProtocol(QThread):
         if limit is None:
             print("RETURN")
             return output
-        elif (limit-volt)/step > 3 and self.checkCompliance(meas):
-            print("Compliance congition")
-            return self.aquireLoop(volt+step,step,volt+step*2,measTime,repeat,nChan,delay)+output
+        elif (limit-volt)/step > 10 and self.checkCompliance(meas):
+            print("Compliance Breached! Taking 8 more measurements.")
+            return self.aquireLoop(volt+step,step,volt+step*9,measTime,repeat,nChan,delay)+output
         else:
             print("Acquisition cycle on volt %.02e ended, continuing..."%float(volt))
             return self.aquireLoop(volt+step,step,limit,measTime,repeat,nChan,delay)+output

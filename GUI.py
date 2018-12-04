@@ -65,9 +65,8 @@ class MainMenu(MenuWindow):
             {'name': 'Arduino COM port number',   'key': 'com'},
             {'name': 'Average value over N samples', 'key': 'repeat'},
             {'name': 'Resistance (Ohms)', 'key': 'resistance'},
+            {'name': 'Agilent Compliance for All Chans (V)', 'key': 'acomp'}
         ]
-        for i in range(1,5):
-            options.append({'name': 'Agilent Compliance for Chan %d (V)'%i, 'key': 'comp%d'%i})
         return options
     
     #Connects gui to the experiments code.
