@@ -104,7 +104,6 @@ class DetailWindow(QMainWindow):
 
     def clearPlot(self,msg=None):
         self.cache={}
-        print("cleared")
         
         
     ''' #This is for every data point on its own plot.

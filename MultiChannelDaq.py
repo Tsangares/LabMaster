@@ -174,10 +174,10 @@ class DaqProtocol(QThread):
         current=abs(comp/self.getResistance() * .98)
         breached=0
         for key,val in meas.items():
-            isBreached = abs(val) > current
-            if isBreached: breached += 1
+            if abs(val) > current: breached += 1
         proportion=float(breached) / float(len(meas))
-        print(proportion)
+        if proportion > .25:
+            print("Currently %.02f%% sensors have reaches complaince."%(proportion*100))
         return proportion > .75
     
     def saveDataToFile(self, data):
@@ -249,7 +249,6 @@ class DaqProtocol(QThread):
             output.append(meas)
         self.saveDataToFile(output)
         if limit is None:
-            print("RETURN")
             return output
         elif (limit-volt)/step > 10 and self.checkCompliance(meas):
             print("Compliance Breached! Taking 8 more measurements.")
