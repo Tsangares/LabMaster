@@ -28,6 +28,9 @@ from Excel import writeExcel
 import statistics as stat
 from emailbot import send_mail
 
+DEBUG=True
+KEITHLEY=False
+
 def getChan(chan):
     map={
         25:'E' , 24:'2' , 23:'BB', 22:'AA', 21:'W' ,
