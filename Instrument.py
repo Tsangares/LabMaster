@@ -12,7 +12,11 @@ class Instrument:
                 inst=self.inst
             else:
                 raise(Exception("Called getName without an Instrument selected."))
-        return str(inst.query('*IDN?')).lower()
+        try:
+            return str(inst.query('*IDN?')).lower()
+        except Exception:
+            print("failed to query device: ",self.inst)
+            return ""
 
 
     def test(self):

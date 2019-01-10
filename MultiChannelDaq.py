@@ -17,7 +17,7 @@ from numpy import linspace
 from random import random
 from DetailWindow import DetailWindow
 from io import BytesIO
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QLabel,QPushButton
 import json, time
 from threading import Thread
@@ -27,8 +27,8 @@ from Arduino import Max
 from Excel import writeExcel
 import statistics as stat
 from emailbot import send_mail
-DEBUG=True
-KEITHLEY=False
+DEBUG=False
+KEITHLEY=True
 
 def getChan(chan):
     map={

@@ -1,4 +1,4 @@
-g# coding: utf-8
+# coding: utf-8
 """
 Contains a MainMenu, with all of the configuaration variables defined.
 The Gui class simple instantiates the MainMenu and handles window switching.
