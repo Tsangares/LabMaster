@@ -94,8 +94,7 @@ class Max:
         #convert mux address (in Unicode string) to integer
         a = int(mux_address)
         if (a<0 or a>6):
-            raise Exception("ARDUINO ERROR: Mux index is out of bounds!")
-            #sys.exit(5)
+            sys.exit(5)
         #convert integer into packed binary.  
         # ">" indicateds "big-endian" bit order
         # "B" indicates Python integer of one byte size.
@@ -115,19 +114,16 @@ class Max:
             # program proceeds to next instruction.  Timeout set to 5 seconds doesn't make
             # a difference, so there should never be timeout errors.  
             if(x == b''):  # i.e. if nothing read back
-               raise Exception("ARDUINO ERROR: Nothing read back!")
-               #sys.exit(2)
+               sys.exit(2)
         except TimeoutError:
-            raise Exception("ARDUINO ERROR: Timeout!")
-            #sys.exit(3)
+            sys.exit(3)
         #print byte received for debugging
         #print("byte received :", hex(x[0]) )
         # if byte read back is different from byte sent, halt and catch fire
         if (x != b):
             # for debugging
             #print("error:  byte sent: ",hex(f[0]) ," byte received: ", hex(x[0]) )
-            raise Exception("ARDUINO ERROR: debugging!")
-            #sys.exit(4)
+            sys.exit(4)
         #else: print("Correct bits received from Arduino")
         #return tuple containing channel numbers
             

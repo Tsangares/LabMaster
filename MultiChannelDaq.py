@@ -17,7 +17,7 @@ from numpy import linspace
 from random import random
 from DetailWindow import DetailWindow
 from io import BytesIO
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal
 from PyQt5.QtWidgets import QLabel,QPushButton
 import json, time
 from threading import Thread
