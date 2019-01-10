@@ -27,8 +27,6 @@ from Arduino import Max
 from Excel import writeExcel
 import statistics as stat
 from emailbot import send_mail
-DEBUG=True
-KEITHLEY=False
 
 def getChan(chan):
     map={
@@ -96,7 +94,6 @@ class DaqProtocol(QThread):
         self.log("Starting data collection")
         
         self.log("STARTING CALIBRATION")
-        self.calibration=self.aquireLoop(0,None,0,None,self.options['measTime'],int(self.options['repeat']),self.options['nChan'])[0]
         self.onClearPlot.emit("clear")
         self.log("ENDING CALIBRATION")
         
@@ -142,15 +139,8 @@ class DaqProtocol(QThread):
         delay=.1
         startVolt=float(kwargs['startVolt'])
         endVolt=float(kwargs['endVolt'])
-        #steps=int(kwargs['steps'])
-        startStep=float(kwargs['startStep'])
-        endStep=float(kwargs['endStep'])
-        steps=(endVolt-startVolt)/(endStep-startStep)
-        decrementor=(endStep-startStep)/steps
-        step=startStep
-        #step=(endVolt-startVolt)/float(steps)
+        steps=int(kwargs['steps'])
         voltages=list(linspace(startVolt,endVolt,steps+1))
-        measured=self.aquireLoop(startVolt,step,decrementor,endVolt,kwargs['measTime'],1,kwargs['nChan'])
         calculated=[]
         output={'Voltage': voltages}
         #Please note list[::-1] will reverse a list
@@ -191,7 +181,6 @@ class DaqProtocol(QThread):
             f.write(json.dumps(data))
 
     #This is a recursive loop that gathers data & calls itself at the next voltage.
-    def aquireLoop(self,volt,step,decrementor,limit,measTime,repeat=1,nChan=4,delay=.1):
         if self.emergencyStop: return []
         if limit is not None and abs(volt) >= abs(limit):
             self.log("Last voltage measured, ending data collection.")
@@ -257,10 +246,8 @@ class DaqProtocol(QThread):
             return output
         elif (limit-volt)/step > 10 and self.checkCompliance(meas):
             print("Compliance Breached! Taking 8 more measurements.")
-            return self.aquireLoop(volt+step,step,decrementor,volt+step*9,measTime,repeat,nChan,delay)+output
         else:
             print("Acquisition cycle on volt %.02e ended, continuing..."%float(volt))
-            return self.aquireLoop(volt+step,step-decrementor,decrementor,limit,measTime,repeat,nChan,delay)+output
 
     #returns the second item in this weird format.
     def skipMeasurements(result, skip):
