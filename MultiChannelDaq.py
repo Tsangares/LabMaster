@@ -27,8 +27,9 @@ from Arduino import Max
 from Excel import writeExcel
 import statistics as stat
 from emailbot import send_mail
-DEBUG=True
-KEITHLEY=False
+DEBUG=False
+KEITHLEY=True
+ARDUINO=False
 
 def getChan(chan):
     map={
@@ -92,7 +93,8 @@ class DaqProtocol(QThread):
                 self.configureKeithley(options)
             self.agilent = Agilent4155C(reset=True)
             self.configureAglient(options)
-            self.arduino = Max("COM%s"%options['com'])
+            if ARDUINO:
+                self.arduino = Max("COM%s"%options['com'])
         self.log("Starting data collection")
         
         self.log("STARTING CALIBRATION")
@@ -111,9 +113,10 @@ class DaqProtocol(QThread):
         self.agilent.setSamplingMode()
         self.agilent.setLong()
         #self.agilent.setShort()
-        if int(kwargs['nChan']) < 0 or int(kwargs['nChan']) > 4:
-            raise Exception("ERROR: Please set number of channels between 0 and 4!")
-        for i in range(1,int(kwargs['nChan'])+1):
+        #if int(kwargs['nChan']) < 0 or int(kwargs['nChan']) > 4:
+        #    raise Exception("ERROR: Please set number of channels between 0 and 4!")
+        #for i in range(1,int(kwargs['nChan'])+1):
+        for i in range(1,5): #Enable all channels
             self.agilent.setCurrent(i,0,float(kwargs['acomp']))
         self.agilent.setMedium()
         self.agilent.setHoldTime(float(kwargs['holdTime']))
@@ -229,7 +232,7 @@ class DaqProtocol(QThread):
         #for mux in range(0,7):
         for mux in range(0,7): #Mux stands to the range of connected inputs from the multiplexers
             if self.emergencyStop: return []
-            if not DEBUG: self.arduino.getGroup(mux)
+            if ARDUINO and not DEBUG: self.arduino.getGroup(mux)
             channels=Max.reverse_map[mux]
             self.log("Set mux to %d, reading channels: %s"%(mux,channels))
             if not DEBUG: time.sleep(1) #Delay for multiplexers to settle
@@ -266,7 +269,7 @@ class DaqProtocol(QThread):
             return self.aquireLoop(volt+step,step,volt+step*9,measTime,repeat,delay).append(meas)
         else:
             newLimit=limit
-            print("Acquisition cycle on volt %04d ended, continuing..."%int(volt))
+            print("Acquisition cycle on %04d V ended. Makeing volt step of %.02f"%(int(volt),step))
         return self.aquireLoop(volt+step,step,newLimit,measTime,repeat,delay)+[meas]
 
     #returns the second item in this weird format.
