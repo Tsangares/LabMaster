@@ -162,6 +162,7 @@ class DaqProtocol(QThread):
             self.log("Region %d initialized with %d steps between %04d and %04g V."%(i,steps,startVolt,endVolt))
             measured=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'],1)
             measurements+=measured
+        measurements=sorted(measurements,key=lambda p: p['Voltage'],reverse=True)
         output=self.repeatedListToDict(measurements)
         if not DEBUG and KEITHLEY: self.keithley.powerDownPSU()
         #Possibly calculate leakage later?
@@ -171,7 +172,7 @@ class DaqProtocol(QThread):
     #Convert from a repeated list of measurements to a dictionary of channels
     def repeatedListToDict(self,measurements):
         output={}
-        for meas in measurements[::-1]:
+        for meas in measurements:
             for channel,value in meas.items():
                 try:
                     output[channel]
@@ -256,7 +257,6 @@ class DaqProtocol(QThread):
             if repeat is 1 and limit is not None: self.newSample.emit((volt,cache))
             #Appends cache to measurements
             meas={**meas, **cache}
-        print("Ending volt", meas['Voltage'])
         ## Finalize ##
         self.saveDataToFile(meas)
         if limit is None: return [meas] #limit is None implies this is calibration mode
@@ -266,7 +266,7 @@ class DaqProtocol(QThread):
             return self.aquireLoop(volt+step,step,volt+step*9,measTime,repeat,delay).append(meas)
         else:
             newLimit=limit
-            print("Acquisition cycle on volt %.02e ended, continuing..."%float(volt))
+            print("Acquisition cycle on volt %04d ended, continuing..."%int(volt))
         return self.aquireLoop(volt+step,step,newLimit,measTime,repeat,delay)+[meas]
 
     #returns the second item in this weird format.
