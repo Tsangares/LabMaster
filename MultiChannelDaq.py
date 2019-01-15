@@ -162,8 +162,7 @@ class DaqProtocol(QThread):
             self.log("Region %d initialized with %d steps between %04d and %04g V."%(i,steps,startVolt,endVolt))
             measured=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'],1)
             measurements+=measured
-            
-        output=self.repeatedListToDict(measured)        
+        output=self.repeatedListToDict(measurements)
         if not DEBUG and KEITHLEY: self.keithley.powerDownPSU()
         #Possibly calculate leakage later?
         if self.emergencyStop: print("Emergency Stop Successful.")
@@ -257,7 +256,7 @@ class DaqProtocol(QThread):
             if repeat is 1 and limit is not None: self.newSample.emit((volt,cache))
             #Appends cache to measurements
             meas={**meas, **cache}
-
+        print("Ending volt", meas['Voltage'])
         ## Finalize ##
         self.saveDataToFile(meas)
         if limit is None: return [meas] #limit is None implies this is calibration mode
