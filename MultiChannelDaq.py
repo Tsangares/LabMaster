@@ -153,12 +153,13 @@ class DaqProtocol(QThread):
                     regions[i][key[len('region_0_'):]]=val
                     
         measurements=[]
-        for region in regions:
+        for i,region in enumerate(regions):
             startVolt=float(region['start'])
             endVolt=float(region['end'])
             steps=int(region['steps'])+1
             step=(endVolt-startVolt)/float(steps)
             voltages=list(linspace(startVolt,endVolt,steps+1))
+            self.log("Region %d initialized with %d steps between %04d and %04g V."%(i,steps,startVolt,endVolt))
             measured=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'],1)
             measurements+=measured
             
