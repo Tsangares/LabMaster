@@ -1,7 +1,6 @@
 """
 This Core.py files contains several helpful classes,
 in the context of the UI builder pyQt5.
-
 TimeSensitive - Enables a simple time keeping & printing
 ValueHandler - Makes getting data from a GUI's form easier.
 Saveable - Allows the GUI to save & load from a .json file.
@@ -47,6 +46,8 @@ class ValueHandler:
         for key,data in self.database.items():
             output[key]=data.text()
         return output
+    def delete(self, key):
+        return self.database.pop(key,None)
     def dump(self):
         print(self.getData())
 
@@ -82,6 +83,19 @@ class Saveable(QMainWindow,ValueHandler):
                     except KeyError:
                         print("Nothing saved for %s"%key)
                 self.onLoad.emit("loaded")
+        except json.decoder.JSONDecodeError:
+            print("Save file is corrupted, please delete %s"%filename)            
+        except FileNotFoundError:
+            print("No settings file.")
+
+    def getSettings(self,filename=".settings.tmp.json"):
+        data=None
+        try:
+            with open(filename) as f:
+                data=json.loads(f.read())
+                f.close()
+            if data != None:
+                return data
         except json.decoder.JSONDecodeError:
             print("Save file is corrupted, please delete %s"%filename)            
         except FileNotFoundError:
@@ -201,7 +215,8 @@ class MenuWindow(Stateful):
     def addStateButton(self, boundState, text, action):
         layout=self.centralWidget().layout()
         self.onStateChange.connect(lambda state: self.stateWidgetHandle(state,boundState,text,action))
-                    
+
+    #In this function I try to delete some buttons, but it is no elegant.
     def stateWidgetHandle(self, state, boundState, text, action):
         layout=self.centralWidget().layout()
         if boundState == state:
@@ -214,3 +229,12 @@ class MenuWindow(Stateful):
             for child in self.centralWidget().children():
                 if(type(child) == QPushButton and child.text() ==  text):
                     layout.removeRow(child)
+
+    def removeWidget(self,parent, objectType, text):
+        for child in parent.children():
+            if(type(child) == QLineEdit):
+                print(vars(QLineEdit))
+            if(type(child) == objectType and child.text() == text):
+                parent.layout().removeRow(child)
+                
+                

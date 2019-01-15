@@ -2,6 +2,13 @@
 *~
 *.pyc
 env/
+<<<<<<< HEAD
+
 .settings.json
 excel/*
 .settings*
+
+=======
+excel/
+.settings.json
+>>>>>>> origin

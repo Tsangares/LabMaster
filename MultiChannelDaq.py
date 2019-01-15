@@ -27,8 +27,8 @@ from Arduino import Max
 from Excel import writeExcel
 import statistics as stat
 from emailbot import send_mail
-DEBUG=False
-KEITHLEY=True
+DEBUG=True
+KEITHLEY=False
 
 def getChan(chan):
     map={
@@ -65,7 +65,7 @@ class DaqProtocol(QThread):
     def __init__(self,options,widget=None):
         super(DaqProtocol,self).__init__(widget)
         self.options=options
-        self.calibration={}
+        self.calibration=None
         self.calibrated=False
         self.emergencyStop=False
         self.onEmergencyStop.connect(self.initEmergencyStop)
@@ -96,7 +96,7 @@ class DaqProtocol(QThread):
         self.log("Starting data collection")
         
         self.log("STARTING CALIBRATION")
-        self.calibration=self.aquireLoop(0,None,None,self.options['measTime'],int(self.options['repeat']),self.options['nChan'])[0]
+        self.calibration=self.aquireLoop(0,None,None,self.options['measTime'],int(self.options['repeat']))[0]
         self.onClearPlot.emit("clear")
         self.log("ENDING CALIBRATION")
         
@@ -140,27 +140,45 @@ class DaqProtocol(QThread):
         self.log("Started data collection.".upper())
         print("Started data collection.")
         delay=.1
-        startVolt=float(kwargs['startVolt'])
-        endVolt=float(kwargs['endVolt'])
-        steps=int(kwargs['steps'])
-        step=(endVolt-startVolt)/float(steps)
-        voltages=list(linspace(startVolt,endVolt,steps+1))
-        measured=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'],1,kwargs['nChan'])
-        calculated=[]
-        output={'Voltage': voltages}
-        #Please note list[::-1] will reverse a list
-        for meas in measured[::-1]:
-            for chan,volt in meas.items():
-                try:
-                    output[chan]
-                except KeyError:
-                    output[chan]=[]
-                output[chan].append(volt)
+        allRegionVariables=[(key, val) for key,val in kwargs.items() if 'region' in key]
+        regions=[]
+        for datum in allRegionVariables:
+            key=datum[0]
+            val=datum[1]
+            for i in range(len(allRegionVariables)):
+                if str(i) in key:
+                    if len(regions) <= i:
+                        for j in range(i-len(regions)+1):
+                            regions.append({})
+                    regions[i][key[len('region_0_'):]]=val
+                    
+        measurements=[]
+        for region in regions:
+            startVolt=float(region['start'])
+            endVolt=float(region['end'])
+            steps=int(region['steps'])+1
+            step=(endVolt-startVolt)/float(steps)
+            voltages=list(linspace(startVolt,endVolt,steps+1))
+            measured=self.aquireLoop(startVolt,step,endVolt,kwargs['measTime'],1)
+            measurements+=measured
+            
+        output=self.repeatedListToDict(measured)        
         if not DEBUG and KEITHLEY: self.keithley.powerDownPSU()
         #Possibly calculate leakage later?
         if self.emergencyStop: print("Emergency Stop Successful.")
         self.onFinish.emit(output)
-
+        
+    #Convert from a repeated list of measurements to a dictionary of channels
+    def repeatedListToDict(self,measurements):
+        output={}
+        for meas in measurements[::-1]:
+            for channel,value in meas.items():
+                try:
+                    output[channel]
+                except KeyError:
+                    output[channel]=[]
+                output[channel].append(value)
+        return output
 
     #Get resistance from the GUI options or from file.
     def getResistance(self,chan=None):
@@ -186,76 +204,70 @@ class DaqProtocol(QThread):
             f.write(json.dumps(data))
 
     #This is a recursive loop that gathers data & calls itself at the next voltage.
-    def aquireLoop(self,volt,step,limit,measTime,repeat=1,nChan=4,delay=.1):
-        if self.emergencyStop: return []
-        if limit is not None and abs(volt) >= abs(limit):
+    def aquireLoop(self,volt,step,limit,measTime,repeat=1,delay=.1):
+        #Note, if limit is none, then we are calibrating
+
+        ### Logistics and Logging ###
+        if self.emergencyStop or (limit is not None and abs(volt) >= abs(limit)):
             self.log("Last voltage measured, ending data collection.")
-            return []
-        self.log("Setting keithley to %.02e"%volt)
+            return list()
+
         if limit is not None: self.log("Step is %.02e; while limit is %.02e; currently at %.02e"%(step,limit,volt))
+
+        #Only turn on the keithley if we are absolutley certain we should:
         if not DEBUG and KEITHLEY and limit is not None:
-            print("setting Keithley voltage to ", volt)
+            self.log("Setting keithley to %.02e"%volt)
             self.keithley.set_output(volt)
-        time.sleep(float(delay))
+
+        #Repeated measurements is used for averaging.
+        if repeat > 1 : self.log("Taking %d measurements on each mux to average."%repeat)
         
-        switchboard = True
-        if(nChan == 1): mode = 'single'
-        else: mode = 'group'
-        output=[]
-        meas = {}
-        if switchboard:
-            #self.arduino.channel_map
-            if mode == 'group':
-                if repeat > 1 : self.log("Taking %d measurements on each mux to average."%repeat)
-                for mux in range(0,7): #7
-                    if self.emergencyStop: return []
-                    if not DEBUG: self.arduino.getGroup(mux)
-                    channels=Max.reverse_map[mux]
-                    self.log("Set mux to %d, reading channels: %s"%(mux,channels))
-                    if not DEBUG: time.sleep(1)
-                    cache={}
-                    for i in range(repeat):
-                        if i < repeat and repeat is not 1: self.log("On sample %d out of %d. %2d%%"%(i,repeat,100.0*i/repeat))
-                        currentMeas=self.getMeasurement(1,measTime,channels,index=mux)
-                        for chan,val in currentMeas.items():
-                            try:
-                                cache[chan]
-                            except KeyError:
-                                cache[chan]=[]
-                            try:
-                                self.calibration[chan]
-                            except KeyError:
-                                self.calibration[chan]=0
-                            if "keithley" in chan:
-                                amps=val
-                            else:
-                                amps=val/self.getResistance(chan)-self.calibration[chan]
-                            cache[chan].append(amps)
-                            self.log("Chan %s reads %.03e A"%(chan,amps))
-                    cache={key: stat.mean(vals) for key,vals in cache.items()}
-                    if repeat is 1 and limit is not None: self.newSample.emit((volt,cache))
-                    meas={**meas, **cache}
-                output.append(meas)
-            elif mode == 'single':
-                for chan, value in self.arduino.channel_map:
-                    self.arduino.getChannel(chan)
-                    time.sleep(1)
-                    currentMeas=self.getMeasurement(2,measTime)
-                    meas={**meas, **currentMeas}
-                    self.newSample.emit(currentMeas)
-        else:
-            meas=self.getMeasurement(2,measTime)
-            self.newSample.emit(currentMeas)
-            output.append(meas)
-        self.saveDataToFile(output)
-        if limit is None:
-            return output
-        elif (limit-volt)/step > 10 and self.checkCompliance(meas):
+        ### Data Taking ###
+        meas = {'Voltage': volt}
+        time.sleep(float(delay)) #Time between measurements delay
+        #for mux in range(0,7):
+        for mux in range(0,7): #Mux stands to the range of connected inputs from the multiplexers
+            if self.emergencyStop: return []
+            if not DEBUG: self.arduino.getGroup(mux)
+            channels=Max.reverse_map[mux]
+            self.log("Set mux to %d, reading channels: %s"%(mux,channels))
+            if not DEBUG: time.sleep(1) #Delay for multiplexers to settle
+            cache={} #Cache is the measurement for a specific mux
+            for i in range(repeat): #This supports repeated measurements for averaging measurements
+                if i < repeat and repeat is not 1: self.log("On sample %d out of %d. %2d%%"%(i,repeat,100.0*i/repeat))
+                thisMeasurements=self.getMeasurement(1,measTime,channels,index=mux)
+                for channel,value in thisMeasurements.items():
+                    if "keithley" in channel:
+                        amps=value
+                    else:
+                        ## Convert keithley voltage to current ##
+                        amps=value/self.getResistance(channel)
+
+                        ## Account for noise ##
+                        if self.calibration is not None:
+                            amps -= self.calibration[channel]
+                    try:
+                        cache[channel].append(amps)
+                    except KeyError:
+                        cache[channel]=[]
+                        cache[channel].append(amps)
+                    self.log("Chan %s reads %.03e A"%(channel,amps))
+            cache={key: stat.mean(vals) for key,vals in cache.items()}
+            if repeat is 1 and limit is not None: self.newSample.emit((volt,cache))
+            #Appends cache to measurements
+            meas={**meas, **cache}
+
+        ## Finalize ##
+        self.saveDataToFile(meas)
+        if limit is None: return [meas] #limit is None implies this is calibration mode
+        elif abs(limit-volt)/step > 10 and self.checkCompliance(meas):
             print("Compliance Breached! Taking 8 more measurements.")
-            return self.aquireLoop(volt+step,step,volt+step*9,measTime,repeat,nChan,delay)+output
+            newLimit=volt+step*9
+            return self.aquireLoop(volt+step,step,volt+step*9,measTime,repeat,delay).append(meas)
         else:
+            newLimit=limit
             print("Acquisition cycle on volt %.02e ended, continuing..."%float(volt))
-            return self.aquireLoop(volt+step,step,limit,measTime,repeat,nChan,delay)+output
+        return self.aquireLoop(volt+step,step,newLimit,measTime,repeat,delay)+[meas]
 
     #returns the second item in this weird format.
     def skipMeasurements(result, skip):

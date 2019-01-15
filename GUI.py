@@ -35,33 +35,79 @@ class MainMenu(MenuWindow):
         super(MainMenu,self).__init__(states)
 
         #This setups the fields and buttons
+
+        #Rename getWidget to generateMenuBaseOnJsonOptions
         menu=self.getWidget(self.getCurrentSetup(), action=self.initDuo)
         self.setCentralWidget(menu)
-
+        self.menu=menu
+        self.menu.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum)
         #This will change the page when the toolbar is perturbed.
-        self.calibrateBtn=QPushButton('Max Calibrate')
-        self.addStateButton('Read Voltage','Max Calibrate',self.test)
-
+        self.addRegionBtn=QPushButton('Add Region')
+        self.delRegionBtn=QPushButton('Delete Region')
+        menu.layout().addRow(self.delRegionBtn,self.addRegionBtn)
+        self.addRegionBtn.clicked.connect(self.addRegion)
+        self.delRegionBtn.clicked.connect(self.delRegion)
+        self.regions=[]
+        self.recoverRegions()
         self.loadAutosave()
         self.show()
 
     def test(self):
         print("pressed")
+
+    def recoverRegions(self):
+        settings=self.getSettings()
+        regions = [ key for key,value in settings.items() if 'region' in key  and 'start' in key ]
+        for region in range(len(regions)):
+            self.addRegion()
         
+        
+    def addRegion(self,msg=None):
+        key='region_%s'%len(self.regions)
+        labels=self.getLabelFromKey(key)
+        dbkeys=self.getDbKeyFromKey(key)
+        self.regions.append(key)
+        self.menu.layout().addRow(QLabel(labels['start']), self.getLineEdit(dbkeys['start']))
+        self.menu.layout().addRow(QLabel(labels['end']), self.getLineEdit(dbkeys['end']))
+        self.menu.layout().addRow(QLabel(labels['steps']), self.getLineEdit(dbkeys['steps']))
+
+    def getLabelFromKey(self,key):
+        return {
+            'start': key+" Start (V)",
+            'end': key+" End (V)",
+            'steps': key+" Steps (#)",
+        }
+    def getDbKeyFromKey(self,key):
+        return {
+            'start': key+'_start',
+            'end': key+'_end',
+            'steps': key+'_steps',
+        }
+            
+    
+    def delRegion(self,msg=None):
+        if len(self.regions) == 0: return
+        key=self.regions[-1]
+        self.regions.remove(key)
+        labels=self.getLabelFromKey(key)
+        for k,label in labels.items():
+            self.removeWidget(self.menu, QLabel, label)
+        dbkeys=self.getDbKeyFromKey(key)
+        for k,dbkey in dbkeys.items():
+            self.delete(dbkey)
+
+
+    
     #Sourcing voltage to zero and reading current on the Agilent
     #Keithly is used to source voltage set by these options
     def getCurrentSetup(self):
         options=[
             {'name': 'Email', 'key': 'email'},
             {'name': 'Filename', 'key': 'filename'},
-            {'name': 'Start Volt (V)', 'key': 'startVolt'},
-            {'name': 'End Volt (V)',   'key': 'endVolt'},
-            {'name': 'Steps',      'key': 'steps'},
             {'name': 'Keithley Compliance (A)',    'key': 'kcomp'},
             {'name': 'Agilent Hold Time (sec)',      'key': 'holdTime'},
             {'name': 'Agilent Measurement Delay (sec)',  'key': 'measDelay'},
             {'name': 'Agilent Measurement Time (sec)',   'key': 'measTime'},
-            {'name': '# of Channels (1 or 4)',   'key': 'nChan'},
             {'name': 'Arduino COM port number',   'key': 'com'},
             {'name': 'Average value over N samples', 'key': 'repeat'},
             {'name': 'Resistance (Ohms)', 'key': 'resistance'},
