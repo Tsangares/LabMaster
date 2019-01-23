@@ -29,7 +29,7 @@ import statistics as stat
 from emailbot import send_mail
 DEBUG=False
 KEITHLEY=True
-ARDUINO=False
+ARDUINO=True
 
 def getChan(chan):
     map={
@@ -111,6 +111,7 @@ class DaqProtocol(QThread):
 
     def configureAglient(self, kwargs):
         self.agilent.setSamplingMode()
+        self.agilent.setStandby(True)
         self.agilent.setLong()
         #self.agilent.setShort()
         #if int(kwargs['nChan']) < 0 or int(kwargs['nChan']) > 4:
